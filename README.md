@@ -1,2 +1,2 @@
-# blast
-Blast project repo
+# EDISON
+Edison project repo
