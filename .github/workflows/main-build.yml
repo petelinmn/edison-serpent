@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ./cerpent/
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore ./cerpent/
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal ./cerpent/
