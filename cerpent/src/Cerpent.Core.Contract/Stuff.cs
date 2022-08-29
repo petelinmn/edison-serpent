@@ -58,34 +58,3 @@ public interface IAggregationRuleSource
 
     Task<int> Put(AggregationRule rule);
 }
-
-
-
-
-
-
-public class StereotypeDescription
-{
-    public StereotypeDescription(string name, string triggerEvent)
-    {
-        Name = name;
-        TriggerEvent = triggerEvent;
-    }
-
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string TriggerEvent { get; set; }
-    public Dictionary<string, string> UpperBounds { get; set; }
-    public Dictionary<string, string> LowerBounds { get; set; }
-    public double Accuracy { get; set; }
-}
-
-public class StereotypeConfirmedResult
-{
-    public string Name { get; set; }
-}
-
-public interface IStereotypeDefinitionSource
-{
-    IEnumerable<StereotypeDescription> Get(string triggerName);
-}

@@ -1,4 +1,5 @@
 ﻿using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.Stereotype;
 
 namespace Cerpent.Core.StereotypeRecognizer;
 
@@ -15,7 +16,7 @@ public class StereotypeRecognizer
         var descriptions = StereotypeDefinitionSource.Get(@event.Name);
         var result = descriptions.Where(d =>
         {
-            if (d.Accuracy == 0 || d.LowerBounds == null && d.UpperBounds == null)
+            if (d.Accuracy == "0" || d.LowerBounds == null && d.UpperBounds == null)
                 return true;
 
             return false;

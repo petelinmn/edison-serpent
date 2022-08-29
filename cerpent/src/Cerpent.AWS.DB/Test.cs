@@ -8,7 +8,7 @@ namespace Cerpent.AWS.DB.Repositories;
 public class Test
 {
     private static string ConnectionString =>
-        "User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=postgres";
+        "User ID=postgres;Password=admin;Host=localhost;Port=5432;Database=postgres";
 
     [TestMethod]
     public void SourceTest()
