@@ -1,33 +1,36 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.Core", "src\Cerpent.Core\Cerpent.Core.csproj", "{14BBA4D4-95E4-419B-A4DD-EB1BE8AFF00C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.Core", "src\Cerpent.Core\Cerpent.Core.csproj", "{14BBA4D4-95E4-419B-A4DD-EB1BE8AFF00C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.MockPlatform", "src\Cerpent.MockPlatform\Cerpent.MockPlatform.csproj", "{B174E346-0299-40D6-9C33-8AE08FC9DD34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.MockPlatform", "src\Cerpent.MockPlatform\Cerpent.MockPlatform.csproj", "{B174E346-0299-40D6-9C33-8AE08FC9DD34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.MockPlatform.Test", "src\Cerpent.MockPlatform.Test\Cerpent.MockPlatform.Test.csproj", "{0AB1DA63-E31B-486B-893C-D6BEEDA9DFAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.MockPlatform.Test", "src\Cerpent.MockPlatform.Test\Cerpent.MockPlatform.Test.csproj", "{0AB1DA63-E31B-486B-893C-D6BEEDA9DFAA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AWS", "AWS", "{BD4C387E-2833-4D50-8811-48BA44AD78C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.AWS.ControlStand", "src\AWS\Cerpent.AWS.ControlStand\src\Cerpent.AWS.ControlStand\Cerpent.AWS.ControlStand.csproj", "{64D400C5-DE9B-40CD-BA0C-5A319358A306}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.AWS.ControlStand", "src\AWS\Cerpent.AWS.ControlStand\src\Cerpent.AWS.ControlStand\Cerpent.AWS.ControlStand.csproj", "{64D400C5-DE9B-40CD-BA0C-5A319358A306}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MockPlatform", "MockPlatform", "{84E84C5A-B660-4368-BBD6-4646751286CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.AWS.DB", "src\Cerpent.AWS.DB\Cerpent.AWS.DB.csproj", "{EC81FF89-0EC0-4690-A69F-47B3177D9625}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.AWS.DB", "src\Cerpent.AWS.DB\Cerpent.AWS.DB.csproj", "{EC81FF89-0EC0-4690-A69F-47B3177D9625}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{02E7E0F3-F0B0-4411-8609-AA0F00F0ABBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.Core.Contract", "src\Cerpent.Core.Contract\Cerpent.Core.Contract.csproj", "{9A574FA7-F057-4DE7-BD09-4767B505E312}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.Core.Contract", "src\Cerpent.Core.Contract\Cerpent.Core.Contract.csproj", "{9A574FA7-F057-4DE7-BD09-4767B505E312}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cerpent.IntegrationTest", "src\Cerpent.IntegrationTest\Cerpent.IntegrationTest.csproj", "{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F1545068-B955-4030-A7EC-FA126A972E25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cerpent.UnitTest", "src\Cerpent.UnitTest\Cerpent.UnitTest.csproj", "{0675050B-867A-4F12-B1BA-84F84EF3CAC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{14BBA4D4-95E4-419B-A4DD-EB1BE8AFF00C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -54,13 +57,29 @@ Global
 		{9A574FA7-F057-4DE7-BD09-4767B505E312}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A574FA7-F057-4DE7-BD09-4767B505E312}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A574FA7-F057-4DE7-BD09-4767B505E312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0675050B-867A-4F12-B1BA-84F84EF3CAC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0675050B-867A-4F12-B1BA-84F84EF3CAC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0675050B-867A-4F12-B1BA-84F84EF3CAC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0675050B-867A-4F12-B1BA-84F84EF3CAC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{64D400C5-DE9B-40CD-BA0C-5A319358A306} = {BD4C387E-2833-4D50-8811-48BA44AD78C6}
+		{14BBA4D4-95E4-419B-A4DD-EB1BE8AFF00C} = {02E7E0F3-F0B0-4411-8609-AA0F00F0ABBC}
 		{B174E346-0299-40D6-9C33-8AE08FC9DD34} = {84E84C5A-B660-4368-BBD6-4646751286CD}
 		{0AB1DA63-E31B-486B-893C-D6BEEDA9DFAA} = {84E84C5A-B660-4368-BBD6-4646751286CD}
+		{64D400C5-DE9B-40CD-BA0C-5A319358A306} = {BD4C387E-2833-4D50-8811-48BA44AD78C6}
 		{EC81FF89-0EC0-4690-A69F-47B3177D9625} = {BD4C387E-2833-4D50-8811-48BA44AD78C6}
-		{14BBA4D4-95E4-419B-A4DD-EB1BE8AFF00C} = {02E7E0F3-F0B0-4411-8609-AA0F00F0ABBC}
 		{9A574FA7-F057-4DE7-BD09-4767B505E312} = {02E7E0F3-F0B0-4411-8609-AA0F00F0ABBC}
+		{C5A032C1-86D8-4CEA-BFB4-1EF1C740CC52} = {F1545068-B955-4030-A7EC-FA126A972E25}
+		{0675050B-867A-4F12-B1BA-84F84EF3CAC8} = {F1545068-B955-4030-A7EC-FA126A972E25}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F612048-0C2E-4F7E-BC6F-A4A62C32DF83}
 	EndGlobalSection
 EndGlobal
