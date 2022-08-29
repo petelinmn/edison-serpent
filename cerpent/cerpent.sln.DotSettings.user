@@ -19,6 +19,7 @@
     &lt;TestAncestor&gt;&#xD;
       &lt;TestId&gt;MSTest::EC81FF89-0EC0-4690-A69F-47B3177D9625::net6.0::Cerpent.AWS.DB.Test&lt;/TestId&gt;&#xD;
       &lt;TestId&gt;MSTest::EC81FF89-0EC0-4690-A69F-47B3177D9625::net6.0::Cerpent.AWS.DB.Repositories.Test&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;MSTest::0675050B-867A-4F12-B1BA-84F84EF3CAC8::net6.0::Cerpent.UnitTest.UnitTest1&lt;/TestId&gt;&#xD;
     &lt;/TestAncestor&gt;&#xD;
   &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

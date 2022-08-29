@@ -8,11 +8,23 @@ namespace Cerpent.Core.Contract.Stereotype
 {
     public interface IStereotypeDefinitionSource
     {
-        IEnumerable<StereotypeDescription> Get(string triggerName);
+        Task<IEnumerable<StereotypeDescription>> Get(string triggerName);
+        Task<int> Put(StereotypeDescription stereotype);
     }
-    public class StereotypeDefinitionSource : IStereotypeDefinitionSource
+    public class StereotypeDefinitionsSource : IStereotypeDefinitionSource
     {
-        public IEnumerable<StereotypeDescription> Get(string triggerName)
+        private IEnumerable<StereotypeDescription> StereotypeDescriptions { get; set; }
+    
+        public StereotypeDefinitionsSource(IEnumerable<StereotypeDescription> stereotypeDescriptions)
+        {
+            StereotypeDescriptions = stereotypeDescriptions;
+        }
+
+        public async Task<IEnumerable<StereotypeDescription>> Get(string triggerEventName) =>
+            await Task.Run(() =>
+                StereotypeDescriptions.Where(rule => rule.TriggerEvent == triggerEventName));
+
+        public async Task<int> Put(StereotypeDescription stereotype)
         {
             throw new NotImplementedException();
         }

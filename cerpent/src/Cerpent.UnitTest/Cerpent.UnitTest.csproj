@@ -15,4 +15,9 @@
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Cerpent.Core\Cerpent.Core.csproj" />
+    <ProjectReference Include="..\Cerpent.MockPlatform\Cerpent.MockPlatform.csproj" />
+  </ItemGroup>
+
 </Project>

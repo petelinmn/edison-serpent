@@ -65,18 +65,66 @@ public class EventAggregator
                     ruleEvents.Count(ruleEvent => ruleEvent.Name == atomic.Key) < atomic.Value))
                 continue;
 
-            var newEventData = rule.Atomics.ToDictionary(atomic => atomic.Key,
+                       /*var newEventData = rule.Atomics.ToDictionary(atomic => atomic.Key,
                 atomic => ruleEvents
                     .Where(ruleEvent => ruleEvent.Name == atomic.Key).Take(atomic.Value)
                     .Select(ruleEvent => ruleEvent?.Data)
-                    .ToArray());
+                    .ToArray());*/
+
+            var newEventData = rule.Atomics.ToDictionary(atomic => atomic.Key,
+                atomic =>
+                {
+                    var currentAtomicEvents = ruleEvents
+                        .Where(ruleEvent => ruleEvent.Name == atomic.Key).Take(atomic.Value)
+                        .ToArray();
+
+                    var properties = currentAtomicEvents.Select(e =>
+                        (from JProperty p in e.Data where p.Name != null select p.Name)
+                        .ToList())
+                            .SelectMany(q => q).Distinct().ToArray();
+
+                    var obj = properties
+                        .Where(p => rule.ContextFields?.Any(c => c == p) is not true)
+                        .ToDictionary(p => p, p =>
+                        {
+                            if (p == "Parents")
+                            {
+                                var arr = currentAtomicEvents.Select(e => e.Data[p]).ToList();
+                                var r = JToken.FromObject(arr.FirstOrDefault());
+
+                                if (arr.Count > 1)
+                                    throw new Exception("Unexpected behaviour");
+                                
+                                return r;
+                            }
+
+                            var result = currentAtomicEvents.Select(e => e.Data[p]);
+                            //if (rule.ContextFields?.Contains(p) == true)
+                            //    return result.FirstOrDefault();
+
+                            return JToken.FromObject(result);
+                        });
+
+                    obj.Add("Id", JToken.FromObject(currentAtomicEvents.Select(e => e.Id)));
+                    obj.Add("Date", JToken.FromObject(currentAtomicEvents.Select(e => e.DateTime)));
+                    
+                    return JToken.FromObject(obj);
+                });
+
+            var data = new Dictionary<string, object?>();
+            foreach (var contextField in rule.ContextFields)
+            {
+                data.Add(contextField, dataDictionary[contextField]);
+            }
+            
+            data.Add("Parents", newEventData);
 
             newEvents.Add(new Event()
             {
                 Id = Guid.NewGuid(),
                 Name = rule.Name,
                 DateTime = DateTime.Now,
-                Data = JToken.FromObject(newEventData)
+                Data = JToken.FromObject(data)
             });
         }
 
