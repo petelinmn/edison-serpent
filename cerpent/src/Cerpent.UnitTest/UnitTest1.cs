@@ -160,7 +160,7 @@ public class UnitTest1
         Assert.IsTrue(complexEventsSecondLevel[0].Name == complexEventSecondLevelName);
 
         const string stereotypeName = "Hypertonia";
-        var stereotypeSource = new StereotypeDefinitionsSource(new []
+        var stereotypeSource = new MockStereotypeDefinitionsSource(new []
         {
             new StereotypeDescription(stereotypeName, complexEventSecondLevelName,
                 new Dictionary<string, string>
