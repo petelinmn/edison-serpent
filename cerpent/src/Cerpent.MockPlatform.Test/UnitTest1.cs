@@ -7,19 +7,19 @@ namespace Cerpent.MockPlatform.Test;
 [TestClass]
 public class UnitTest1
 {
-    MockEventSource GetMockEventSource(string eventName, params object[] args)
+    MockEventSource GetMockEventSource(Dictionary<string, object[]> events)
     {
-        return new MockEventSource(args.Select((arg, index) =>
+        var eventsPrepared = events.Select((arg, index) =>
         {
-            var token = JToken.FromObject(arg);
-            return new Event()
+            return arg.Value.Select(val => new AutoIncIdMockEvent()
             {
-                Id = index++,
-                Name = eventName,
-                DateTime = DateTime.Now.AddSeconds(args.Length - index - 1),
-                Data = token
-            };
-        }).ToArray());
+                Name = arg.Key,
+                DateTime = DateTime.Now.AddSeconds(arg.Value.Length - index * 2 - 1),
+                Data = JToken.FromObject(val)
+            });
+        }).SelectMany(i => i).ToArray();
+
+        return new MockEventSource(eventsPrepared);
     }
     
     
@@ -32,10 +32,18 @@ public class UnitTest1
         var johnId = Guid.NewGuid();
         var tomId = Guid.NewGuid();
         
-        var eventSource = GetMockEventSource(atomicEventName, 
-            new { PersonId = johnId, Value = 100 },
-            new { PersonId = tomId, Value = 110 },
-            new { PersonId = johnId, Value = 120 }
+        var eventSource = GetMockEventSource(new Dictionary<string, object[]>()
+            {
+                {
+                    atomicEventName,
+                    new object[]
+                    {
+                        new { PersonId = johnId, Value = 100 },
+                        new { PersonId = tomId, Value = 110 },
+                        new { PersonId = johnId, Value = 120 }
+                    }
+                }
+            }
         );
 
         var aggregationRuleSource = new MockAggregationRuleSource(new AggregationRule[]
@@ -45,7 +53,7 @@ public class UnitTest1
                 new [] { "PersonId" }, null, null)
         });
         
-        var eventAggregator = new EventAggregator(eventSource, aggregationRuleSource);
+        var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
         var complexEvents = (eventAggregator.Aggregate(new Event
         {
             Id = 1,

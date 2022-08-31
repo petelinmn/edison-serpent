@@ -17,7 +17,7 @@ namespace Cerpent.IntegrationTest.DBTests
     [TestClass]
     public class EventDbOperationTest : BaseDbOpeartionTest
     {
-        private DbEventSource _eventSource;
+        private DbEventSource? _eventSource;
         private int _testEventId;
 
         [TestInitialize]
@@ -60,7 +60,7 @@ namespace Cerpent.IntegrationTest.DBTests
         [TestCleanup]
         public void TestCleanup()
         {
-            _eventSource.Delete(_testEventId).GetAwaiter().GetResult();
+            _eventSource?.Delete(_testEventId).GetAwaiter().GetResult();
         }
     }
 }

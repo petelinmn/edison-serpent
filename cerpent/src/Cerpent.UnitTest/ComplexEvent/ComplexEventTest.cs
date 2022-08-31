@@ -13,20 +13,18 @@ namespace Cerpent.UnitTest.ComplexEvent
     {
         MockEventSource GetMockEventSource(Dictionary<string, object[]> events)
         {
-            var ttt = events.Select((arg, index) =>
+            var eventsPrepared = events.Select((arg, index) =>
             {
-                return arg.Value.Select(val => new Event()
+                return arg.Value.Select(val => new AutoIncIdMockEvent()
                 {
-                    Id = index++,
                     Name = arg.Key,
                     DateTime = DateTime.Now.AddSeconds(arg.Value.Length - index * 2 - 1),
                     Data = JToken.FromObject(val)
                 });
             }).SelectMany(i => i).ToArray();
 
-            return new MockEventSource(ttt);
+            return new MockEventSource(eventsPrepared);
         }
-
 
         [TestMethod]
         public void ComplexEventFirstLevelTest()
@@ -58,10 +56,9 @@ namespace Cerpent.UnitTest.ComplexEvent
                 new [] { "PersonId" }, null, null)
             });
 
-            var eventAggregator = new EventAggregator(eventSource, aggregationRuleSource);
-            var complexEvents = (eventAggregator.Aggregate(new Event
+            var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
+            var complexEvents = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
             {
-                Id = 1,
                 Name = atomicEventName,
                 DateTime = DateTime.Now,
                 Data = JToken.FromObject(new { PersonId = johnId, Value = 130 })
@@ -70,7 +67,6 @@ namespace Cerpent.UnitTest.ComplexEvent
             Assert.IsTrue(complexEvents.Count == 1);
             Assert.IsTrue(complexEvents[0].Name == complexEventName);
         }
-
 
         [TestMethod]
         public void ComplexEventSecondLevelTest()
@@ -113,11 +109,10 @@ namespace Cerpent.UnitTest.ComplexEvent
                 new [] { contextFieldName }, null, null)
             });
 
-            var eventAggregator = new EventAggregator(eventSource, aggregationRuleSource);
+            var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
 
-            var complexEvents1 = (eventAggregator.Aggregate(new Event
+            var complexEvents1 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
             {
-                Id = 2,
                 Name = atomic1EventName,
                 DateTime = DateTime.Now,
                 Data = JToken.FromObject(new { PersonId = johnId, Value = 130 })
@@ -126,9 +121,8 @@ namespace Cerpent.UnitTest.ComplexEvent
             Assert.IsTrue(complexEvents1.Count == 1);
             Assert.IsTrue(complexEvents1[0].Name == complexEvent1Name);
 
-            var complexEvents2 = (eventAggregator.Aggregate(new Event
+            var complexEvents2 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
             {
-                Id = 3,
                 Name = atomic2EventName,
                 DateTime = DateTime.Now,
                 Data = JToken.FromObject(new { PersonId = johnId, Value = 150 })
@@ -138,9 +132,9 @@ namespace Cerpent.UnitTest.ComplexEvent
             Assert.IsTrue(complexEvents2[0].Name == complexEvent2Name);
 
             eventSource = GetMockEventSource(new Dictionary<string, object[]>
-            {
-                { complexEvent1Name, new object[] { complexEvents1[0].Data } }
-            }
+                {
+                    {complexEvent1Name, new object[] {complexEvents1[0].Data}}
+                }
             );
 
             const string complexEventSecondLevelName = "PulseAndPressureRise";
@@ -151,8 +145,8 @@ namespace Cerpent.UnitTest.ComplexEvent
                 new [] { contextFieldName }, null, null)
             });
 
-            eventAggregator = new EventAggregator(eventSource, aggregationRuleSource);
-            var complexEventsSecondLevel = (eventAggregator.Aggregate(complexEvents2[0]).Result).ToList();
+            eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
+            var complexEventsSecondLevel = (eventAggregator.Aggregate<AutoIncIdMockEvent>(complexEvents2[0]).Result).ToList();
 
             Assert.IsTrue(complexEventsSecondLevel.Count == 1);
             Assert.IsTrue(Guid.Parse(complexEventsSecondLevel[0].Data[contextFieldName].ToString()) == johnId);
@@ -164,7 +158,7 @@ namespace Cerpent.UnitTest.ComplexEvent
             new StereotypeDescription(stereotypeName, complexEventSecondLevelName,
                 new Dictionary<string, string>
                 {
-                    { atomic1EventName, "Value - 1" }, { atomic2EventName, "Value - 2" }
+                    { atomic1EventName, "Value - 1" }, { atomic2EventName, "Value - 2 - listValue[2]" }
                 },
                 new Dictionary<string, string>
                 {

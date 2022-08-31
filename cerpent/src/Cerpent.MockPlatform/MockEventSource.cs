@@ -4,16 +4,26 @@ using Newtonsoft.Json.Linq;
 
 namespace Cerpent.MockPlatform;
 
-public class MockEventSource : IDbEventSource
+public class AutoIncIdMockEvent : Event
 {
-    private Event[] Events { get; }
+    private static int _id = 0;
+
+    public AutoIncIdMockEvent() : base()
+    {
+        Id = ++_id;
+    }
+}
+
+public class MockEventSource : IDbEventSource<AutoIncIdMockEvent>
+{
+    private AutoIncIdMockEvent[] Events { get; }
     
-    public MockEventSource(Event[] events)
+    public MockEventSource(AutoIncIdMockEvent[] events)
     {
         Events = events;
     }
 
-    public async Task<IEnumerable<Event>> Get(string name,
+    public async Task<IEnumerable<AutoIncIdMockEvent>> Get(string name,
         Dictionary<string, JToken?>? contextDictionary,
         double? timeSpanInSec = null) =>
         await Task.Run(() => Events
@@ -22,7 +32,7 @@ public class MockEventSource : IDbEventSource
                 !timeSpanInSec.HasValue ||
                 timeSpanInSec.Value > (DateTime.Now - @event.DateTime).Seconds));
 
-    public Task<int> Put(Event newEvent)
+    public Task<int> Put(AutoIncIdMockEvent newMockEvent)
     {
         throw new NotImplementedException();
     }
