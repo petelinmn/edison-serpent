@@ -1,15 +1,16 @@
-﻿using Cerpent.Core.Contract;
-using Newtonsoft.Json;
+﻿using Cerpent.AWS.DB.Sources;
+using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.Event;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core;
 
 public class EventAggregator
 {
-    private IEventSource EventSource { get; set; }
+    private IDbEventSource EventSource { get; set; }
     private IAggregationRuleSource AggregationRuleSource { get; set; }
 
-    public EventAggregator(IEventSource eventSource, IAggregationRuleSource aggregationRuleSource)
+    public EventAggregator(IDbEventSource eventSource, IAggregationRuleSource aggregationRuleSource)
     {
         EventSource = eventSource;
         AggregationRuleSource = aggregationRuleSource;
@@ -41,8 +42,14 @@ public class EventAggregator
             .ToArray();
 
         var timeSpan = rules.MaxBy(rule => rule.TimeSpan)?.TimeSpan ?? 3600;
-        var eventList = (await EventSource.Get(atomicEvents,
-            contextDictionary, timeSpan)).ToList();
+
+        List<Event> eventList = new List<Event>();
+
+        foreach (var atomicEvent in atomicEvents)
+        {
+            var events = (await EventSource.Get(atomicEvent, contextDictionary, timeSpan)).ToList();
+            eventList.AddRange(events);
+        }
 
         eventList = eventList
             .Where(e => contextDictionary
@@ -121,9 +128,9 @@ public class EventAggregator
 
             newEvents.Add(new Event()
             {
-                Id = Guid.NewGuid(),
+                //Id = Guid.NewGuid(),
                 Name = rule.Name,
-                DateTime = DateTime.Now,
+                DateTime = DateTime.UtcNow,
                 Data = JToken.FromObject(data)
             });
         }

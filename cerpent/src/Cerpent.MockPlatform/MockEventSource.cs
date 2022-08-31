@@ -1,9 +1,10 @@
-﻿using Cerpent.Core.Contract;
+﻿using Cerpent.AWS.DB.Sources;
+using Cerpent.Core.Contract.Event;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.MockPlatform;
 
-public class MockEventSource : IEventSource
+public class MockEventSource : IDbEventSource
 {
     private Event[] Events { get; }
     
@@ -12,12 +13,17 @@ public class MockEventSource : IEventSource
         Events = events;
     }
 
-    public async Task<IEnumerable<Event>> Get(IEnumerable<string> names,
+    public async Task<IEnumerable<Event>> Get(string name,
         Dictionary<string, JToken?>? contextDictionary,
         double? timeSpanInSec = null) =>
         await Task.Run(() => Events
-            .Where(@event => names.Contains(@event.Name))
+            .Where(@event => @event.Name == name)
             .Where(@event =>
                 !timeSpanInSec.HasValue ||
                 timeSpanInSec.Value > (DateTime.Now - @event.DateTime).Seconds));
+
+    public Task<int> Put(Event newEvent)
+    {
+        throw new NotImplementedException();
+    }
 }

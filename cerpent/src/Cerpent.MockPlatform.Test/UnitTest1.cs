@@ -1,4 +1,5 @@
 using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.Event;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.MockPlatform.Test;
@@ -13,7 +14,7 @@ public class UnitTest1
             var token = JToken.FromObject(arg);
             return new Event()
             {
-                Id = Guid.NewGuid(),
+                Id = index++,
                 Name = eventName,
                 DateTime = DateTime.Now.AddSeconds(args.Length - index - 1),
                 Data = token
@@ -47,7 +48,7 @@ public class UnitTest1
         var eventAggregator = new EventAggregator(eventSource, aggregationRuleSource);
         var complexEvents = (eventAggregator.Aggregate(new Event
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = atomicEventName,
             DateTime = DateTime.Now,
             Data = JToken.FromObject(new { PersonId = johnId, Value = 130 })

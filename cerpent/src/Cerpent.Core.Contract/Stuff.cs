@@ -4,20 +4,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core.Contract;
 
-public class Event
-{
-    public Guid? Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public DateTime DateTime { get; set; }
-    public JToken Data { get; set; }
-}
-
-public interface IEventSource
-{
-    Task<IEnumerable<Event>> Get(IEnumerable<string> names, Dictionary<string,
-        JToken?>? contextDictionary, double? timeSpanInSec = null);
-}
-
 public class AggregationRule
 {
     public AggregationRule()

@@ -1,4 +1,4 @@
---drop table aggregationrules
+﻿--drop table aggregationrules
 create sequence aggregationrules_id_seq as integer;
 create table aggregationrules
 (
@@ -19,4 +19,13 @@ create table stereotypedescriptions
     upperbounds   json,
     lowerbounds   json,
     accuracy      text      
+);
+
+create sequence events_id_seq as integer;
+create table events
+(
+    id            integer       default nextval('events_id_seq'::regclass)    not null primary key,
+    name          text                                                        not null,
+    datetime      timestamp                                                   not null,
+    data          jsonb                                                       not null
 );

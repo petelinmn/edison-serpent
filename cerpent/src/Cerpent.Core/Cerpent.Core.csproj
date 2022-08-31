@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Cerpent.AWS.DB\Cerpent.AWS.DB.csproj" />
       <ProjectReference Include="..\Cerpent.Core.Contract\Cerpent.Core.Contract.csproj" />
     </ItemGroup>
 

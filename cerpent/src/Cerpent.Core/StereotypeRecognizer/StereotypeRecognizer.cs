@@ -1,4 +1,4 @@
-﻿using Cerpent.Core.Contract;
+﻿using Cerpent.Core.Contract.Event;
 using Cerpent.Core.Contract.Stereotype;
 using Newtonsoft.Json.Linq;
 

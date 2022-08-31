@@ -9,16 +9,13 @@ using Cerpent.AWS.DB.Sources;
 namespace Cerpent.IntegrationTest.DBTests
 {
     [TestClass]
-    public class StereotypeDescriptionDbOperationTest
+    public class StereotypeDescriptionDbOperationTest : BaseDbOpeartionTest
     {
-        private IOptions<DatabaseSettings> _databaseSettings { get; set; }
         private DbStereotypeDescriptionSource _stereotypeDescriptionSource;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-            _databaseSettings = OptionsHelper.CreateDatabaseSettings("Database", config);
             _stereotypeDescriptionSource = new DbStereotypeDescriptionSource(_databaseSettings.Value.ConnectionString);
         }
 
@@ -47,7 +44,7 @@ namespace Cerpent.IntegrationTest.DBTests
             var newStereotype = new StereotypeDescription(stereotypeName, stereotypeTriggerEvent,
                 upperBoundDictionary, lowerBoundDictionary, accuracy);
 
-            var newId = _stereotypeDescriptionSource.Put(newStereotype).Result;
+            var newId = _stereotypeDescriptionSource.Put(newStereotype).Result;            
 
             var ruleFromDb = _stereotypeDescriptionSource.Get(stereotypeTriggerEvent)
                 .Result.FirstOrDefault();
