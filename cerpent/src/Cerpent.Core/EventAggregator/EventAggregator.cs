@@ -1,5 +1,5 @@
-﻿using Cerpent.AWS.DB.Sources;
-using Cerpent.Core.Contract;
+﻿using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.AggregationRules;
 using Cerpent.Core.Contract.Event;
 using Newtonsoft.Json.Linq;
 
@@ -7,10 +7,10 @@ namespace Cerpent.Core;
 
 public class EventAggregator<TEvent> where TEvent : Event, new()
 {
-    private IDbEventSource<TEvent> EventSource { get; set; }
+    private IEventSource<TEvent> EventSource { get; set; }
     private IAggregationRuleSource AggregationRuleSource { get; set; }
 
-    public EventAggregator(IDbEventSource<TEvent> eventSource, IAggregationRuleSource aggregationRuleSource)
+    public EventAggregator(IEventSource<TEvent> eventSource, IAggregationRuleSource aggregationRuleSource)
     {
         EventSource = eventSource;
         AggregationRuleSource = aggregationRuleSource;

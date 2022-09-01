@@ -1,5 +1,6 @@
 ﻿using Cerpent.AWS.DB.Repositories;
 using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.AggregationRules;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cerpent.AWS.ControlStand.Controllers;
