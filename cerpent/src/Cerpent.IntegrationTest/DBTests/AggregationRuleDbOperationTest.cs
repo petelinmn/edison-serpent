@@ -7,7 +7,7 @@ namespace Cerpent.IntegrationTest.DBTests
     [TestClass]
     public class AggregationRuleDbOperationTest : BaseDbOpeartionTest
     {
-        private DbAggregationRuleSource _dbAggregationRuleSource;
+        private DbAggregationRuleSource? _dbAggregationRuleSource;
 
         [TestInitialize]
         public void TestInitialize()
@@ -44,8 +44,8 @@ namespace Cerpent.IntegrationTest.DBTests
             Assert.IsTrue(ruleFromDb.Condition == newRule.Condition);
             Assert.IsTrue(ruleFromDb.ContextFields?.Count() == newRule.ContextFields?.Count());
             Assert.IsTrue(ruleFromDb.Atomics?.Count == newRule.Atomics?.Count);
-            Assert.IsTrue(ruleFromDb.Atomics[firstAtomicEventName] == newRule.Atomics[firstAtomicEventName]);
-            Assert.IsTrue(ruleFromDb.TimeSpan == newRule.TimeSpan);
+            Assert.IsTrue(ruleFromDb?.Atomics?[firstAtomicEventName] == newRule?.Atomics?[firstAtomicEventName]);
+            Assert.IsTrue(ruleFromDb?.TimeSpan == newRule?.TimeSpan);
         }
     }
 }

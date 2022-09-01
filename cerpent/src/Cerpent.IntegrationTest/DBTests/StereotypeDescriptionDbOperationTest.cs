@@ -11,7 +11,7 @@ namespace Cerpent.IntegrationTest.DBTests
     [TestClass]
     public class StereotypeDescriptionDbOperationTest : BaseDbOpeartionTest
     {
-        private DbStereotypeDescriptionSource _stereotypeDescriptionSource;
+        private DbStereotypeDescriptionSource? _stereotypeDescriptionSource;
 
         [TestInitialize]
         public void TestInitialize()

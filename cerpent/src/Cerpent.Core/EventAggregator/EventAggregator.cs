@@ -5,12 +5,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core;
 
-public class EventAggregator
+public class EventAggregator<TEvent> where TEvent : Event, new()
 {
-    private IDbEventSource EventSource { get; set; }
+    private IDbEventSource<TEvent> EventSource { get; set; }
     private IAggregationRuleSource AggregationRuleSource { get; set; }
 
-    public EventAggregator(IDbEventSource eventSource, IAggregationRuleSource aggregationRuleSource)
+    public EventAggregator(IDbEventSource<TEvent> eventSource, IAggregationRuleSource aggregationRuleSource)
     {
         EventSource = eventSource;
         AggregationRuleSource = aggregationRuleSource;
@@ -21,7 +21,7 @@ public class EventAggregator
             .Where(rule => rule.Atomics?.ContainsKey(triggerEventName) == true)
             .ToArray();
 
-    public async Task<IEnumerable<Event>> Aggregate(Event triggerAtomicEvent)
+    public async Task<IEnumerable<TEvent>> Aggregate<TEvent>(TEvent triggerAtomicEvent) where TEvent : Event, new()
     {
         var rules = await GetRules(triggerAtomicEvent.Name);
 
@@ -43,12 +43,12 @@ public class EventAggregator
 
         var timeSpan = rules.MaxBy(rule => rule.TimeSpan)?.TimeSpan ?? 3600;
 
-        List<Event> eventList = new List<Event>();
+        var eventList = new List<TEvent>();
 
         foreach (var atomicEvent in atomicEvents)
         {
             var events = (await EventSource.Get(atomicEvent, contextDictionary, timeSpan)).ToList();
-            eventList.AddRange(events);
+            eventList.AddRange(events.Cast<TEvent>());
         }
 
         eventList = eventList
@@ -61,7 +61,7 @@ public class EventAggregator
 
         eventList = eventList.OrderByDescending(o => o.DateTime).ToList();
 
-        var newEvents = new List<Event>();
+        var newEvents = new List<TEvent>();
         foreach (var rule in rules)
         {
             var ruleEvents = eventList
@@ -126,9 +126,10 @@ public class EventAggregator
             
             data.Add("Parents", newEventData);
 
-            newEvents.Add(new Event()
+            newEvents.Add(new TEvent()
             {
                 //Id = Guid.NewGuid(),
+                Id = eventList.Max(e => e.Id),
                 Name = rule.Name,
                 DateTime = DateTime.UtcNow,
                 Data = JToken.FromObject(data)

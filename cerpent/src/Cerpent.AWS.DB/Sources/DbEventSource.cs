@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Cerpent.AWS.DB.Sources
 {
-    public interface IDbEventSource
+    public interface IDbEventSource<TEvent> where TEvent : Event, new()
     {
-        Task<int> Put(Event newEvent);
-        Task<IEnumerable<Event>> Get(string name, Dictionary<string,
+        Task<int> Put(TEvent newEvent);
+        Task<IEnumerable<TEvent>> Get(string name, Dictionary<string,
             JToken?>? contextDictionary, double? timeSpanInSec = null);
     }
-    public class DbEventSource : IDbEventSource
+    public class DbEventSource : IDbEventSource<Event>
     {
         public DbEventSource(string connectionString) =>
          Repository = new EventRepository(connectionString);
