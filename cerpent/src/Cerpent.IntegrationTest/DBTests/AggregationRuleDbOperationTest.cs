@@ -1,5 +1,5 @@
-﻿using Cerpent.AWS.DB.Repositories;
-using Cerpent.Core.Contract;
+﻿using Cerpent.AWS.DB.Sources;
+using Cerpent.Core.Contract.AggregationRules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Cerpent.IntegrationTest.DBTests

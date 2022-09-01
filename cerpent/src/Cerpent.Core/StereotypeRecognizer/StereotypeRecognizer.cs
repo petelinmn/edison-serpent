@@ -1,23 +1,22 @@
 ﻿using Cerpent.Core.Contract.Event;
 using Cerpent.Core.Contract.Stereotype;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core.StereotypeRecognizer;
 
 public class StereotypeRecognizer
 {
-    private IStereotypeDefinitionSource StereotypeDefinitionSource { get; }
-    public StereotypeRecognizer(IStereotypeDefinitionSource stereotypeDefinitionSource)
+    private IStereotypeDescriptionSource StereotypeDescriptionSource { get; }
+    public StereotypeRecognizer(IStereotypeDescriptionSource stereotypeDescriptionSource)
     {
-        StereotypeDefinitionSource = stereotypeDefinitionSource;
+        StereotypeDescriptionSource = stereotypeDescriptionSource;
     }
 
     public async Task<IEnumerable<StereotypeConfirmedResult>> FuzzySearch(Event @event)
     {
         var chartsData = GetCharts(@event.Data);
         
-        var descriptions = (await StereotypeDefinitionSource.Get(@event.Name)).ToList();
+        var descriptions = (await StereotypeDescriptionSource.Get(@event.Name)).ToList();
         
         var result = descriptions.ToList().Where(description =>
         {

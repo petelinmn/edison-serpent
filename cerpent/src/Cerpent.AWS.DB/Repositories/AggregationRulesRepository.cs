@@ -2,6 +2,7 @@
 using Cerpent.AWS.DB.Repositories.Stuff;
 using Cerpent.AWS.DB.Repositories.Util.ParameterTypes;
 using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.AggregationRules;
 using Dapper;
 using Newtonsoft.Json;
 

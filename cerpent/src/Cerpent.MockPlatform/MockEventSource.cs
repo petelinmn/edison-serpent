@@ -1,5 +1,4 @@
-﻿using Cerpent.AWS.DB.Sources;
-using Cerpent.Core.Contract.Event;
+﻿using Cerpent.Core.Contract.Event;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.MockPlatform;
@@ -14,7 +13,7 @@ public class AutoIncIdMockEvent : Event
     }
 }
 
-public class MockEventSource : IDbEventSource<AutoIncIdMockEvent>
+public class MockEventSource : IEventSource<AutoIncIdMockEvent>
 {
     private AutoIncIdMockEvent[] Events { get; }
     
@@ -33,6 +32,11 @@ public class MockEventSource : IDbEventSource<AutoIncIdMockEvent>
                 timeSpanInSec.Value > (DateTime.Now - @event.DateTime).Seconds));
 
     public Task<int> Put(AutoIncIdMockEvent newMockEvent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Delete(int id)
     {
         throw new NotImplementedException();
     }

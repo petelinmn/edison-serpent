@@ -1,10 +1,8 @@
-﻿using Cerpent.Core.Contract;
-using Cerpent.Core.Contract.Stereotype;
-using Newtonsoft.Json.Linq;
+﻿using Cerpent.Core.Contract.Stereotype;
 
 namespace Cerpent.MockPlatform;
 
-public class MockStereotypeDefinitionsSource : IStereotypeDefinitionSource
+public class MockStereotypeDefinitionsSource : IStereotypeDescriptionSource
 {
     private IEnumerable<StereotypeDescription> StereotypeDescriptions { get; set; }
     
@@ -18,6 +16,11 @@ public class MockStereotypeDefinitionsSource : IStereotypeDefinitionSource
             StereotypeDescriptions.Where(rule => rule.TriggerEvent == triggerEventName));
 
     public async Task<int> Put(StereotypeDescription stereotype)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Delete(int id)
     {
         throw new NotImplementedException();
     }

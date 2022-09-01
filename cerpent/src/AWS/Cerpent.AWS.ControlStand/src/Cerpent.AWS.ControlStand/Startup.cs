@@ -1,5 +1,5 @@
-﻿using Cerpent.AWS.DB.Repositories;
-using Cerpent.Core.Contract;
+﻿using Cerpent.AWS.DB.Sources;
+using Cerpent.Core.Contract.AggregationRules;
 
 namespace Cerpent.AWS.ControlStand;
 

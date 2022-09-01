@@ -1,5 +1,6 @@
 ﻿
 using Cerpent.Core.Contract;
+using Cerpent.Core.Contract.AggregationRules;
 
 namespace Cerpent.MockPlatform;
 

@@ -5,6 +5,7 @@ using Cerpent.Core.StereotypeRecognizer;
 using Cerpent.Core;
 using Cerpent.MockPlatform;
 using Newtonsoft.Json.Linq;
+using Cerpent.Core.Contract.AggregationRules;
 
 namespace Cerpent.UnitTest.ComplexEvent
 {
