@@ -1,4 +1,5 @@
 ﻿using Cerpent.AWS.DB.Repositories.Util.ParameterTypes;
+using Cerpent.AWS.DB.Util.ParameterTypes;
 using Newtonsoft.Json;
 using Npgsql;
 
@@ -37,6 +38,11 @@ public abstract class BaseRepository
     {
         var jsonText = JsonConvert.SerializeObject(param);
         return new JsonParameter(jsonText);
+    }
+
+    protected DateTimeParameter GetDateTimeParameter(DateTime dateTime)
+    {
+        return new DateTimeParameter(dateTime);
     }
 
     protected NpgsqlTransaction? Transaction => _connectionProvider.CurrentTransaction;

@@ -1,18 +1,9 @@
 ﻿using Cerpent.AWS.DB.Repositories.Stuff;
 using Cerpent.AWS.DB.Repositories.Util.ParameterTypes;
-using Cerpent.Core.Contract;
 using Cerpent.Core.Contract.Event;
-using Cerpent.Core.Contract.Stereotype;
 using Dapper;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Cerpent.AWS.DB.Repositories
 {
@@ -30,7 +21,7 @@ namespace Cerpent.AWS.DB.Repositories
 
             if (timeSpanInSec.HasValue)
             {
-                whereClauseSB.Append($" AND datetime > current_timestamp - interval '{timeSpanInSec} seconds'");
+                whereClauseSB.Append($" AND datetime > timezone('utc', now()) - interval '{timeSpanInSec} seconds'");
             }
 
             if (contextDictionary != null && contextDictionary.Any())
@@ -93,8 +84,7 @@ namespace Cerpent.AWS.DB.Repositories
         private async Task<int> Insert(Event newEvent)
         {
             var eventData = new JsonParameter(newEvent.Data.ToString());
-
-            var utcNow = DateTime.UtcNow;
+            var utcNow =  GetDateTimeParameter(DateTime.UtcNow);
 
             try
             {

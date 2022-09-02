@@ -12,6 +12,8 @@ namespace Cerpent.IntegrationTest.DBTests
         {
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             _databaseSettings = OptionsHelper.CreateDatabaseSettings("Database", config);
+            //For timestamp db columns
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
     }
 }
