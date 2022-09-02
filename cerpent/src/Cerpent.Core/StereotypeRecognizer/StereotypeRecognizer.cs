@@ -1,5 +1,6 @@
 ﻿using Cerpent.Core.Contract.Event;
 using Cerpent.Core.Contract.Stereotype;
+using Cerpent.Core.Expression;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core.StereotypeRecognizer;
@@ -12,52 +13,80 @@ public class StereotypeRecognizer
         StereotypeDescriptionSource = stereotypeDescriptionSource;
     }
 
-    public async Task<IEnumerable<StereotypeConfirmedResult>> FuzzySearch(Event @event)
+    public async Task<IEnumerable<StereotypeCheckResult>> FuzzySearch(Event @event)
     {
         var chartsData = GetCharts(@event.Data);
         
         var descriptions = (await StereotypeDescriptionSource.Get(@event.Name)).ToList();
-        
-        var result = descriptions.ToList().Where(description =>
-        {
-            if (description is null || description.Accuracy == "0"
-                || (description.LowerBounds == null && description.UpperBounds == null))
-                return true;
 
-            foreach (var chartData in chartsData)
+        var result = descriptions.Select(description =>
+        {
+            return new StereotypeCheckResult()
             {
-                var lowerBoundFunc = description.LowerBounds.ContainsKey(chartData.Key)
-                    ? description.LowerBounds[chartData.Key] : null;
-                
-                var upperBoundFunc = description.UpperBounds.ContainsKey(chartData.Key)
-                    ? description.UpperBounds[chartData.Key] : null;
-                
-                var dict = chartData.Value.ToObject<Dictionary<string, JToken[]>>();
-                var ids = dict["Id"];
-                for (var i = 0; i < ids.Length; i++)
+                StereotypeName = description.Name,
+                TriggerEventId = @event.Id,
+                ChartResults = chartsData.Select(chartData =>
                 {
-                    var args = new Dictionary<string, JToken>();
-                    foreach (var key in dict.Keys)
+                    var metricFunc = description.Metrics?.ContainsKey(chartData.Key) == true
+                        ? description.Metrics[chartData.Key] : null;
+                
+                    var lowerBoundFunc = description.LowerBounds?.ContainsKey(chartData.Key) == true
+                        ? description.LowerBounds[chartData.Key] : null;
+                
+                    var upperBoundFunc = description.UpperBounds?.ContainsKey(chartData.Key) == true
+                        ? description.UpperBounds[chartData.Key] : null;
+                    
+                    var chartProps = chartData.Value.ToObject<Dictionary<string, JToken[]>>();
+                
+                    var ids = chartProps["Id"];
+                    var dates = chartProps["Date"];
+                    
+                    var metricResult = new List<double?>();
+                    var lowerResult = new List<double?>();
+                    var upperResult = new List<double?>();
+
+                    for (var i = 0; i < ids.Length; i++)
                     {
-                        args.Add(key, dict[key][i]);
+                        var args = new Dictionary<string, JToken>();
+                        foreach (var key in chartProps.Keys)
+                        {
+                            var values = chartProps[key];
+                            args.Add(key, values[i]);
 
-                        var arrKey = $"list{key}";
-                        if (lowerBoundFunc?.Contains(arrKey) == true || upperBoundFunc?.Contains(arrKey) == true)
-                            args.Add(arrKey, JToken.FromObject(dict[key]));
+                            var arrKey = $"list{key}";
+                            if (metricFunc?.Contains(arrKey) == true
+                                || lowerBoundFunc?.Contains(arrKey) == true 
+                                || upperBoundFunc?.Contains(arrKey) == true)
+                                args.Add(arrKey, JToken.FromObject(values));
+                        }
+
+                        var metricValue = metricFunc is null ? (double?)null 
+                            : JSExpression.Calculate(metricFunc, args); 
+                        var lowerValue = lowerBoundFunc is null ? (double?)null 
+                            : JSExpression.Calculate(lowerBoundFunc, args);
+                        var upperValue = upperBoundFunc is null ? (double?)null 
+                            : JSExpression.Calculate(upperBoundFunc, args);
+
+                        metricResult.Add(metricValue);
+                        lowerResult.Add(lowerValue);
+                        upperResult.Add(upperValue);
                     }
-                }
-            }
-
-            return true;
-        });
-        
-        return result.Select(steretype =>
-        {
-            return new StereotypeConfirmedResult
-            {
-                Name = steretype.Name
+                    
+                    return new StereotypeChartResult()
+                    {
+                        Accuracy = description.Accuracy,
+                        MetricName = description.Name,
+                        Ids = ids.Select(d => d.ToObject<int>()).ToArray(),
+                        Dates = dates.Select(d => d.ToObject<DateTime>()).ToArray(),
+                        Metrics = metricResult.ToArray(),
+                        UpperBounds = upperResult.ToArray(),
+                        LowerBounds = lowerResult.ToArray(),
+                    };
+                }).ToList()
             };
-        });
+        }).ToList();
+
+        return result;
     }
 
     private const string Parents = "Parents";

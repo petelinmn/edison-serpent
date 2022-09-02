@@ -20,24 +20,5 @@ public class MockAggregationRuleSource : IAggregationRuleSource
     public async Task<int> Put(AggregationRule rule)
     {
         throw new NotImplementedException();
-        /*var newList = new List<AggregationRule>();
-        newList.AddRange(AggregationRules);
-        
-        
-        
-        if (rule.Id == 0)
-        {
-            rule.Id = newList.Max(i => i.Id) + 1;
-            newList.Add(rule);
-            return rule.Id;
-        }
-        else
-        {
-            var existing = newList.FirstOrDefault(i => i.Id == )
-            
-        }
-
-        AggregationRules = newList;
-        return 0;*/
     }
 }
