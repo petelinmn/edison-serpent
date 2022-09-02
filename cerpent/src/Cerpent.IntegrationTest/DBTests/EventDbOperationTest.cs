@@ -1,16 +1,7 @@
-﻿using Cerpent.AWS.DB.Settings;
-using Cerpent.AWS.DB.Sources;
+﻿using Cerpent.AWS.DB.Sources;
 using Cerpent.Core.Contract.Event;
-using Cerpent.IntegrationTest.Helpers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Cerpent.IntegrationTest.DBTests
 {
