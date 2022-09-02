@@ -17,18 +17,25 @@ namespace Cerpent.AWS.DB.Repositories
             var whereClause = triggerEvent is null ? "" : $"where triggerevent ='{triggerEvent}'";
 
             var sql = $@"
-            select Id, Name, TriggerEvent, Accuracy, Id, UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson
+            select Id, Name, TriggerEvent, Accuracy, Id, Metrics as metricsJson,
+                UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson
             from stereotypedescriptions
             {whereClause};";
 
             var result = await Connection.QueryAsync<StereotypeDescription, StereotypeDescriptionBounds, StereotypeDescription>(sql,
                 ((stereotype, stereotypeBounds) =>
                 {
-                    if (stereotypeBounds is not null)
-                        stereotype.UpperBounds = JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.UpperBoundsJson);
-
-                    if (stereotypeBounds is not null)
-                        stereotype.LowerBounds = JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.LowerBoundsJson);
+                    if (stereotypeBounds is null)
+                        return stereotype;
+                    
+                    stereotype.Metrics = stereotypeBounds.MetricsJson is null ? null
+                        : JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.MetricsJson);
+                        
+                    stereotype.UpperBounds = stereotypeBounds.UpperBoundsJson is null ? null
+                        : JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.UpperBoundsJson);
+                        
+                    stereotype.LowerBounds = stereotypeBounds.LowerBoundsJson is null ? null
+                        : JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.LowerBoundsJson);
 
                     return stereotype;
                 }),
@@ -48,7 +55,6 @@ namespace Cerpent.AWS.DB.Repositories
             if (!currentId.HasValue)
             {
                 currentId = await Insert(stereotype);
-
             }
             else
             {
@@ -73,22 +79,24 @@ namespace Cerpent.AWS.DB.Repositories
 
         private async Task<int> Insert(StereotypeDescription stereotype)
         {
-            var upperBoundsJson = GetJsonParameter(stereotype.UpperBounds);
-            var lowerBoundsJson = GetJsonParameter(stereotype.LowerBounds);
+            var metricsJson = stereotype?.Metrics is null ? null : GetJsonParameter(stereotype.Metrics);
+            var upperBoundsJson = stereotype?.UpperBounds is null ? null : GetJsonParameter(stereotype.UpperBounds);
+            var lowerBoundsJson = stereotype?.LowerBounds is null ? null : GetJsonParameter(stereotype.LowerBounds);
 
             try
             {
                 var result = await Connection.ExecuteScalarAsync($@"
-               INSERT INTO stereotypedescriptions (name, triggerevent, upperbounds, lowerbounds, accuracy)
-                VALUES (@{nameof(stereotype.Name)},@{nameof(stereotype.TriggerEvent)},@{nameof(upperBoundsJson)},
-                    @{nameof(lowerBoundsJson)},@{nameof(stereotype.Accuracy)}) returning id;",
+               INSERT INTO stereotypedescriptions (name, triggerevent, metrics, upperbounds, lowerbounds, accuracy)
+                VALUES (@{nameof(stereotype.Name)},@{nameof(stereotype.TriggerEvent)},@{nameof(metricsJson)},
+                        @{nameof(upperBoundsJson)},@{nameof(lowerBoundsJson)},@{nameof(stereotype.Accuracy)}) returning id;",
                     new
                     {
-                        stereotype.Name,
-                        stereotype.TriggerEvent,
+                        stereotype?.Name,
+                        stereotype?.TriggerEvent,
+                        metricsJson,
                         upperBoundsJson,
                         lowerBoundsJson,
-                        stereotype.Accuracy
+                        stereotype?.Accuracy
                     });
 
                 return (int)result;
@@ -106,22 +114,24 @@ namespace Cerpent.AWS.DB.Repositories
             if (stereotype.Id == 0)
                 throw new Exception("StereotypeDescription doesn't exist");
 
-            var upperBoundsJson = GetJsonParameter(stereotype.UpperBounds);
-            var lowerBoundsJson = GetJsonParameter(stereotype.LowerBounds);
+            var metricsJson = stereotype?.Metrics is null ? null : GetJsonParameter(stereotype.Metrics);
+            var upperBoundsJson = stereotype?.UpperBounds is null ? null : GetJsonParameter(stereotype.UpperBounds);
+            var lowerBoundsJson = stereotype?.LowerBounds is null ? null : GetJsonParameter(stereotype.LowerBounds);
 
             await Connection.ExecuteAsync($@"
            UPDATE stereotypedescriptions
            SET name=@{nameof(stereotype.Name)},
                triggerevent=@{nameof(stereotype.TriggerEvent)},
+               metrics=@{nameof(metricsJson)},
                upperbounds=@{nameof(upperBoundsJson)},
                lowerbounds=@{nameof(lowerBoundsJson)},
                accuracy=@{nameof(stereotype.Accuracy)}
            WHERE Id = @{stereotype.Id} 
         ", new
             {
-                stereotype.Id,
                 stereotype.Name,
                 stereotype.TriggerEvent,
+                metricsJson,
                 upperBoundsJson,
                 lowerBoundsJson,
                 stereotype.Accuracy,
@@ -142,6 +152,7 @@ namespace Cerpent.AWS.DB.Repositories
         class StereotypeDescriptionBounds
         {
             public int Id { get; set; }
+            public string? MetricsJson { get; set; }
             public string? UpperBoundsJson { get; set; }
             public string? LowerBoundsJson { get; set; }
         }

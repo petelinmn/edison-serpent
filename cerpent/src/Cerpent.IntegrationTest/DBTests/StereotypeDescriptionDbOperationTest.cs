@@ -24,9 +24,15 @@ namespace Cerpent.IntegrationTest.DBTests
         [DataRow("UPDATE_TEST")]
         public void StereotypeDescriptionPutAndGetShouldWork(string name)
         {
-            string stereotypeName = name;
+            var stereotypeName = name;
             const string stereotypeTriggerEvent = "TRIGGER_EVENT_TEST";
 
+            var metricsDictionary = new Dictionary<string, string>
+            {
+                { "Pulse", "Value" },
+                { "Pressure", "Value"}
+            };
+            
             var upperBoundDictionary = new Dictionary<string, string>
             {
                 { "Pulse", "{Value} + {Age}/3 - {Mood}" },
@@ -42,7 +48,7 @@ namespace Cerpent.IntegrationTest.DBTests
             var accuracy = "5%";
 
             var newStereotype = new StereotypeDescription(stereotypeName, stereotypeTriggerEvent,
-                upperBoundDictionary, lowerBoundDictionary, accuracy);
+                metricsDictionary, upperBoundDictionary, lowerBoundDictionary, accuracy);
 
             var newId = _stereotypeDescriptionSource.Put(newStereotype).Result;            
 
@@ -52,6 +58,9 @@ namespace Cerpent.IntegrationTest.DBTests
             Assert.IsTrue(ruleFromDb != null);
             Assert.IsTrue(ruleFromDb.Id == newId);
             Assert.IsTrue(ruleFromDb.TriggerEvent == newStereotype.TriggerEvent);
+            Assert.IsTrue(ruleFromDb.Metrics.Count() == newStereotype.Metrics.Count());
+            Assert.IsTrue(ruleFromDb.Metrics.First().Key == newStereotype.Metrics.First().Key);
+            Assert.IsTrue(ruleFromDb.Metrics.First().Value == newStereotype.Metrics.First().Value);
             Assert.IsTrue(ruleFromDb.UpperBounds.Count() == newStereotype.UpperBounds.Count());
             Assert.IsTrue(ruleFromDb.UpperBounds.First().Key == newStereotype.UpperBounds.First().Key);
             Assert.IsTrue(ruleFromDb.UpperBounds.First().Value == newStereotype.UpperBounds.First().Value);

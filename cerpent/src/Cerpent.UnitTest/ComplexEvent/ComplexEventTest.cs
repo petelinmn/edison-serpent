@@ -150,13 +150,20 @@ namespace Cerpent.UnitTest.ComplexEvent
             var complexEventsSecondLevel = (eventAggregator.Aggregate<AutoIncIdMockEvent>(complexEvents2[0]).Result).ToList();
 
             Assert.IsTrue(complexEventsSecondLevel.Count == 1);
-            Assert.IsTrue(Guid.Parse(complexEventsSecondLevel[0].Data[contextFieldName].ToString()) == johnId);
+
+            var personId = complexEventsSecondLevel[0].Data[contextFieldName]?.ToString()
+                ?? throw new ArgumentNullException($"PersonId don't have to be null");
+            Assert.IsTrue(Guid.Parse(personId) == johnId);
             Assert.IsTrue(complexEventsSecondLevel[0].Name == complexEventSecondLevelName);
 
             const string stereotypeName = "Hypertonia";
-            var stereotypeSource = new MockStereotypeDefinitionsSource(new[]
+            var stereotypeSource = new MockStereotypeDescriptionsSource(new[]
             {
             new StereotypeDescription(stereotypeName, complexEventSecondLevelName,
+                new Dictionary<string, string>
+                {
+                    { atomic1EventName, "Value" }, { atomic2EventName, "Value" }
+                },
                 new Dictionary<string, string>
                 {
                     { atomic1EventName, "Value - 1" }, { atomic2EventName, "Value - 2 - listValue[2]" }

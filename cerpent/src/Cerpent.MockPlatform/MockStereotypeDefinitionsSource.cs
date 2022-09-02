@@ -2,11 +2,11 @@
 
 namespace Cerpent.MockPlatform;
 
-public class MockStereotypeDefinitionsSource : IStereotypeDescriptionSource
+public class MockStereotypeDescriptionsSource : IStereotypeDescriptionSource
 {
     private IEnumerable<StereotypeDescription> StereotypeDescriptions { get; set; }
     
-    public MockStereotypeDefinitionsSource(IEnumerable<StereotypeDescription> stereotypeDescriptions)
+    public MockStereotypeDescriptionsSource(IEnumerable<StereotypeDescription> stereotypeDescriptions)
     {
         StereotypeDescriptions = stereotypeDescriptions;
     }
