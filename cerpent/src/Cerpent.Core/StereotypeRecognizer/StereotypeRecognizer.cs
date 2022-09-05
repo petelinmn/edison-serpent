@@ -23,7 +23,7 @@ public class StereotypeRecognizer
         {
             return new StereotypeCheckResult()
             {
-                StereotypeName = description.Name,
+                StereotypeDescriptionId = description.Id,
                 TriggerEventId = @event.Id,
                 ChartResults = chartsData.Select(chartData =>
                 {

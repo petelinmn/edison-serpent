@@ -107,11 +107,5 @@ namespace Cerpent.AWS.DB.Repositories
 
             return -1;
         }
-
-        class EventData
-        {
-            public string Value { get; set; }
-            public string PersonId { get; set; }
-        }
     }
 }
