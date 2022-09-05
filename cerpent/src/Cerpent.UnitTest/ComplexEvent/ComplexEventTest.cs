@@ -78,22 +78,22 @@ namespace Cerpent.UnitTest.ComplexEvent
             const string pulseEvent = "Pulse";
             const string pressureEvent = "Pressure";
             var eventSource = GetMockEventSource(new Dictionary<string, object[]>()
-            {
                 {
-                    pulseEvent,
-                    new object[]
                     {
-                        new { PersonId = johnId, Value = 100, Mood = 50 },
-                    }
-                },
-                {
-                    pressureEvent,
-                    new object[]
+                        pulseEvent,
+                        new object[]
+                        {
+                            new {PersonId = johnId, Value = 100, Mood = 50},
+                        }
+                    },
                     {
-                        new { PersonId = johnId, Value = 120, Mood = 110 },
+                        pressureEvent,
+                        new object[]
+                        {
+                            new {PersonId = johnId, Value = 120, Mood = 110},
+                        }
                     }
                 }
-            }
             );
 
             const string complexEvent1Name = "PulseRise";
@@ -180,12 +180,12 @@ namespace Cerpent.UnitTest.ComplexEvent
             var stereotypeRecognitionResult =
                 stereotypeRecognizer.FuzzySearch(complexEventsSecondLevel[0]).Result.ToList();
 
-            Assert.IsTrue(stereotypeRecognitionResult.Count() == 1);
+            Assert.IsTrue(stereotypeRecognitionResult.Count == 1);
 
             var stereotypeCheckResult = stereotypeRecognitionResult?.FirstOrDefault();
             Assert.IsTrue(stereotypeCheckResult?.IsConfirmed);
 
-            Assert.IsTrue(stereotypeCheckResult?.ChartResults.Count() == 2);
+            Assert.IsTrue(stereotypeCheckResult?.ChartResults?.Count() == 2);
         }
     }
 }

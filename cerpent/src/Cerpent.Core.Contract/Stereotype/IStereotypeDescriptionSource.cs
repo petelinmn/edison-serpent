@@ -1,5 +1,4 @@
-﻿
-namespace Cerpent.Core.Contract.Stereotype
+﻿namespace Cerpent.Core.Contract.Stereotype
 {
     public interface IStereotypeDescriptionSource
     {

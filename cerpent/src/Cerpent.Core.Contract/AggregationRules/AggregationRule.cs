@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-
 namespace Cerpent.Core.Contract.AggregationRules
 {
     public class AggregationRule
