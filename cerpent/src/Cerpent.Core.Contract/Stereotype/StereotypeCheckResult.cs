@@ -47,6 +47,9 @@ namespace Cerpent.Core.Contract.Stereotype
             get
             {
                 var matchesCount = GetMatchesCount();
+                if (matchesCount == 0)
+                    return false;
+
                 if (Accuracy.EndsWith('%'))
                 {
                     var percentRequired = Convert.ToDouble(Accuracy.Replace("%", ""));

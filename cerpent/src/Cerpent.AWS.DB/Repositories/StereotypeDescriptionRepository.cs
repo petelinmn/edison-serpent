@@ -17,8 +17,8 @@ namespace Cerpent.AWS.DB.Repositories
             var whereClause = triggerEvent is null ? "" : $"where triggerevent ='{triggerEvent}'";
 
             var sql = $@"
-            select Id, Name, TriggerEvent, Accuracy, Id, Metrics as metricsJson,
-                UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson
+            select Id, Name, TriggerEvent, Id, Metrics as metricsJson,
+                UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson, Accuracy as accuracyJson
             from stereotypedescriptions
             {whereClause};";
 
@@ -36,6 +36,9 @@ namespace Cerpent.AWS.DB.Repositories
                         
                     stereotype.LowerBounds = stereotypeBounds.LowerBoundsJson is null ? null
                         : JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.LowerBoundsJson);
+                    
+                    stereotype.Accuracy = stereotypeBounds.AccuracyJson is null ? null
+                        : JsonConvert.DeserializeObject<Dictionary<string, string>>(stereotypeBounds.AccuracyJson);
 
                     return stereotype;
                 }),
@@ -82,13 +85,14 @@ namespace Cerpent.AWS.DB.Repositories
             var metricsJson = stereotype?.Metrics is null ? null : GetJsonParameter(stereotype.Metrics);
             var upperBoundsJson = stereotype?.UpperBounds is null ? null : GetJsonParameter(stereotype.UpperBounds);
             var lowerBoundsJson = stereotype?.LowerBounds is null ? null : GetJsonParameter(stereotype.LowerBounds);
+            var accuracyJson = stereotype?.Accuracy is null ? null : GetJsonParameter(stereotype.Accuracy);
 
             try
             {
                 var result = await Connection.ExecuteScalarAsync($@"
                INSERT INTO stereotypedescriptions (name, triggerevent, metrics, upperbounds, lowerbounds, accuracy)
                 VALUES (@{nameof(stereotype.Name)},@{nameof(stereotype.TriggerEvent)},@{nameof(metricsJson)},
-                        @{nameof(upperBoundsJson)},@{nameof(lowerBoundsJson)},@{nameof(stereotype.Accuracy)}) returning id;",
+                        @{nameof(upperBoundsJson)},@{nameof(lowerBoundsJson)},@{nameof(accuracyJson)}) returning id;",
                     new
                     {
                         stereotype?.Name,
@@ -96,7 +100,7 @@ namespace Cerpent.AWS.DB.Repositories
                         metricsJson,
                         upperBoundsJson,
                         lowerBoundsJson,
-                        stereotype?.Accuracy
+                        accuracyJson
                     });
 
                 return (int)result;
@@ -117,6 +121,7 @@ namespace Cerpent.AWS.DB.Repositories
             var metricsJson = stereotype?.Metrics is null ? null : GetJsonParameter(stereotype.Metrics);
             var upperBoundsJson = stereotype?.UpperBounds is null ? null : GetJsonParameter(stereotype.UpperBounds);
             var lowerBoundsJson = stereotype?.LowerBounds is null ? null : GetJsonParameter(stereotype.LowerBounds);
+            var accuracyJson = stereotype?.Accuracy is null ? null : GetJsonParameter(stereotype.Accuracy);
 
             await Connection.ExecuteAsync($@"
            UPDATE stereotypedescriptions
@@ -125,7 +130,7 @@ namespace Cerpent.AWS.DB.Repositories
                metrics=@{nameof(metricsJson)},
                upperbounds=@{nameof(upperBoundsJson)},
                lowerbounds=@{nameof(lowerBoundsJson)},
-               accuracy=@{nameof(stereotype.Accuracy)}
+               accuracy=@{nameof(accuracyJson)}
            WHERE Id = @{stereotype.Id} 
         ", new
             {
@@ -134,7 +139,7 @@ namespace Cerpent.AWS.DB.Repositories
                 metricsJson,
                 upperBoundsJson,
                 lowerBoundsJson,
-                stereotype.Accuracy,
+                accuracyJson,
             });
 
             return stereotype.Id;
@@ -155,6 +160,7 @@ namespace Cerpent.AWS.DB.Repositories
             public string? MetricsJson { get; set; }
             public string? UpperBoundsJson { get; set; }
             public string? LowerBoundsJson { get; set; }
+            public string? AccuracyJson { get; set; }
         }
     }
 }

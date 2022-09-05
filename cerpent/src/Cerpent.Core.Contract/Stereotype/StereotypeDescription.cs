@@ -6,8 +6,9 @@ namespace Cerpent.Core.Contract.Stereotype
     {
         public StereotypeDescription() {}
         
-        public StereotypeDescription(string name, string triggerEvent, IDictionary<string, string> metrics,
-            IDictionary<string, string> upperBounds, IDictionary<string, string> lowerBounds, string accuracy)
+        public StereotypeDescription(string name, string triggerEvent,
+            IDictionary<string, string> metrics, IDictionary<string, string> upperBounds,
+            IDictionary<string, string> lowerBounds, IDictionary<string, string> accuracy)
         {
             Name = name;
             TriggerEvent = triggerEvent;
@@ -18,9 +19,9 @@ namespace Cerpent.Core.Contract.Stereotype
         }
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [JsonProperty("triggerevent")]
-        public string TriggerEvent { get; set; }
+        public string? TriggerEvent { get; set; }
         [JsonProperty("metrics")]
         public IDictionary<string, string>? Metrics { get; set; }
         [JsonProperty("upperbounds")]
@@ -28,6 +29,6 @@ namespace Cerpent.Core.Contract.Stereotype
         [JsonProperty("lowerbounds")]
         public IDictionary<string, string>? LowerBounds { get; set; }
         [JsonProperty("accuracy")]
-        public string Accuracy { get; set; }
+        public IDictionary<string, string>? Accuracy { get; set; }
     }
 }

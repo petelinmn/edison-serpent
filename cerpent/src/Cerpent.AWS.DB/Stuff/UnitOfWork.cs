@@ -4,8 +4,8 @@ namespace Cerpent.AWS.DB.Repositories.Stuff;
 
 public class UnitOfWork : IDisposable
 {
-    protected ConnectionProvider _connectionProvider;
-    protected bool _disposed;
+    private ConnectionProvider _connectionProvider;
+    private bool _disposed;
 
     NpgsqlConnection? _connection = null;
     NpgsqlTransaction? _transaction = null;
@@ -44,7 +44,7 @@ public class UnitOfWork : IDisposable
         }
     }
 
-    private void dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (_disposed)
             return;
@@ -61,11 +61,11 @@ public class UnitOfWork : IDisposable
         _disposed = true;
     }
 
-    ~UnitOfWork() => dispose(false);
+    ~UnitOfWork() => Dispose(false);
     
     public void Dispose()
     {
-        dispose(true);
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 }
