@@ -1,8 +1,4 @@
-﻿using Cerpent.IntegrationTest.Helpers;
-using Cerpent.AWS.DB.Settings;
-using Cerpent.Core.Contract.Stereotype;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Cerpent.Core.Contract.Stereotype;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Cerpent.AWS.DB.Sources;
 
@@ -35,21 +31,28 @@ namespace Cerpent.IntegrationTest.DBTests
             
             var upperBoundDictionary = new Dictionary<string, string>
             {
-                { "Pulse", "{Value} + {Age}/3 - {Mood}" },
-                { "Pressure", "{Value} + {Age}/2 - {Mood}"}
+                { "Pulse", "Value + Age/3 - Mood" },
+                { "Pressure", "Value + Age/2 - Mood"}
             };
 
             var lowerBoundDictionary = new Dictionary<string, string>
             {
-                { "Pulse", "{Value} + {Age}/4 - {Mood}" },
-                { "Pressure", "{Value} + {Age}/5 - {Mood}"}
+                { "Pulse", "Value + Age/4 - Mood" },
+                { "Pressure", "Value + Age/5 - Mood"}
+            };
+            
+            var accuracyDictionary = new Dictionary<string, string>
+            {
+                { "Pulse", "50%" },
+                { "Pressure", "1"}
             };
 
-            var accuracy = "5%";
-
             var newStereotype = new StereotypeDescription(stereotypeName, stereotypeTriggerEvent,
-                metricsDictionary, upperBoundDictionary, lowerBoundDictionary, accuracy);
+                metricsDictionary, upperBoundDictionary, lowerBoundDictionary, accuracyDictionary);
 
+            if (_stereotypeDescriptionSource == null)
+                throw new ArgumentNullException(nameof(_stereotypeDescriptionSource));
+            
             var newId = _stereotypeDescriptionSource.Put(newStereotype).Result;            
 
             var ruleFromDb = _stereotypeDescriptionSource.Get(stereotypeTriggerEvent)
@@ -58,16 +61,18 @@ namespace Cerpent.IntegrationTest.DBTests
             Assert.IsTrue(ruleFromDb != null);
             Assert.IsTrue(ruleFromDb.Id == newId);
             Assert.IsTrue(ruleFromDb.TriggerEvent == newStereotype.TriggerEvent);
-            Assert.IsTrue(ruleFromDb.Metrics.Count() == newStereotype.Metrics.Count());
-            Assert.IsTrue(ruleFromDb.Metrics.First().Key == newStereotype.Metrics.First().Key);
-            Assert.IsTrue(ruleFromDb.Metrics.First().Value == newStereotype.Metrics.First().Value);
-            Assert.IsTrue(ruleFromDb.UpperBounds.Count() == newStereotype.UpperBounds.Count());
-            Assert.IsTrue(ruleFromDb.UpperBounds.First().Key == newStereotype.UpperBounds.First().Key);
-            Assert.IsTrue(ruleFromDb.UpperBounds.First().Value == newStereotype.UpperBounds.First().Value);
-            Assert.IsTrue(ruleFromDb.LowerBounds.Count() == newStereotype.LowerBounds.Count());
-            Assert.IsTrue(ruleFromDb.LowerBounds.First().Key == newStereotype.LowerBounds.First().Key);
-            Assert.IsTrue(ruleFromDb.LowerBounds.First().Value == newStereotype.LowerBounds.First().Value);
-            Assert.IsTrue(ruleFromDb.Accuracy == newStereotype.Accuracy);
+            Assert.IsTrue(ruleFromDb.Metrics?.Count == newStereotype.Metrics?.Count);
+            Assert.IsTrue(ruleFromDb.Metrics?.First().Key == newStereotype.Metrics?.First().Key);
+            Assert.IsTrue(ruleFromDb.Metrics?.First().Value == newStereotype.Metrics?.First().Value);
+            Assert.IsTrue(ruleFromDb.UpperBounds?.Count == newStereotype.UpperBounds?.Count);
+            Assert.IsTrue(ruleFromDb.UpperBounds?.First().Key == newStereotype.UpperBounds?.First().Key);
+            Assert.IsTrue(ruleFromDb.UpperBounds?.First().Value == newStereotype.UpperBounds?.First().Value);
+            Assert.IsTrue(ruleFromDb.LowerBounds?.Count == newStereotype.LowerBounds?.Count);
+            Assert.IsTrue(ruleFromDb.LowerBounds?.First().Key == newStereotype.LowerBounds?.First().Key);
+            Assert.IsTrue(ruleFromDb.LowerBounds?.First().Value == newStereotype.LowerBounds?.First().Value);
+            Assert.IsTrue(ruleFromDb.Accuracy?.Count == newStereotype.Accuracy?.Count);
+            Assert.IsTrue(ruleFromDb.Accuracy?.First().Key == newStereotype.Accuracy?.First().Key);
+            Assert.IsTrue(ruleFromDb.Accuracy?.First().Value == newStereotype.Accuracy?.First().Value);
 
             //TODO: Test cleanup
             //if (_lastIdInserted != 0)

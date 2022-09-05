@@ -16,10 +16,10 @@ create table stereotypedescriptions
     id            integer       default nextval('stereotypedescriptions_id_seq'::regclass)    not null primary key,
     name          text unique                                                                 not null,
     triggerevent  text unique                                                                 not null,
-    metrics       json,
-    upperbounds   json,
-    lowerbounds   json,
-    accuracy      text      
+    metrics       jsonb,
+    upperbounds   jsonb,
+    lowerbounds   jsonb,
+    accuracy      jsonb      
 );
 
 create sequence events_id_seq as integer;

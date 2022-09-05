@@ -1,6 +1,4 @@
-﻿using Cerpent.Core.Contract.Event;
-using Cerpent.Core.Contract.Stereotype;
-using Cerpent.Core.Contract;
+﻿using Cerpent.Core.Contract.Stereotype;
 using Cerpent.Core.StereotypeRecognizer;
 using Cerpent.Core;
 using Cerpent.MockPlatform;
@@ -14,12 +12,12 @@ namespace Cerpent.UnitTest.ComplexEvent
     {
         MockEventSource GetMockEventSource(Dictionary<string, object[]> events)
         {
-            var eventsPrepared = events.Select((arg, index) =>
+            var eventsPrepared = events.Select((arg) =>
             {
-                return arg.Value.Select(val => new AutoIncIdMockEvent()
+                return arg.Value.Reverse().Select((val, index) => new AutoIncIdMockEvent()
                 {
                     Name = arg.Key,
-                    DateTime = DateTime.Now.AddSeconds(arg.Value.Length - index * 2 - 1),
+                    DateTime = DateTime.Now.AddSeconds(-(index + 1) * 2),
                     Data = JToken.FromObject(val)
                 });
             }).SelectMany(i => i).ToArray();
@@ -54,11 +52,11 @@ namespace Cerpent.UnitTest.ComplexEvent
             {
             new (complexEventName, new Dictionary<string, int>
                     { { atomicEventName, 3 } },
-                new [] { "PersonId" }, null, null)
+                new [] { "PersonId" }, "Value[0] > Value[1] && Value[1] > Value[2]", null)
             });
 
             var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
-            var complexEvents = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
+            var complexEvents = (eventAggregator.Aggregate(new AutoIncIdMockEvent
             {
                 Name = atomicEventName,
                 DateTime = DateTime.Now,
@@ -77,25 +75,25 @@ namespace Cerpent.UnitTest.ComplexEvent
             var johnId = Guid.NewGuid();
             var tomId = Guid.NewGuid();
 
-            const string atomic1EventName = "Pulse";
-            const string atomic2EventName = "Pressure";
+            const string pulseEvent = "Pulse";
+            const string pressureEvent = "Pressure";
             var eventSource = GetMockEventSource(new Dictionary<string, object[]>()
-            {
                 {
-                    atomic1EventName,
-                    new object[]
                     {
-                        new { PersonId = johnId, Value = 100 },
-                    }
-                },
-                {
-                    atomic2EventName,
-                    new object[]
+                        pulseEvent,
+                        new object[]
+                        {
+                            new {PersonId = johnId, Value = 100, Mood = 50},
+                        }
+                    },
                     {
-                        new { PersonId = johnId, Value = 120 },
+                        pressureEvent,
+                        new object[]
+                        {
+                            new {PersonId = johnId, Value = 120, Mood = 110},
+                        }
                     }
                 }
-            }
             );
 
             const string complexEvent1Name = "PulseRise";
@@ -103,10 +101,10 @@ namespace Cerpent.UnitTest.ComplexEvent
             var aggregationRuleSource = new MockAggregationRuleSource(new AggregationRule[]
             {
             new (complexEvent1Name, new Dictionary<string, int>
-                { { atomic1EventName, 2 } },
+                { { pulseEvent, 2 } },
                 new [] { contextFieldName }, null, null),
             new (complexEvent2Name, new Dictionary<string, int>
-                    { { atomic2EventName, 2 } },
+                    { { pressureEvent, 2 } },
                 new [] { contextFieldName }, null, null)
             });
 
@@ -114,9 +112,9 @@ namespace Cerpent.UnitTest.ComplexEvent
 
             var complexEvents1 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
             {
-                Name = atomic1EventName,
+                Name = pulseEvent,
                 DateTime = DateTime.Now,
-                Data = JToken.FromObject(new { PersonId = johnId, Value = 130 })
+                Data = JToken.FromObject(new { PersonId = johnId, Value = 130, Mood = 150 })
             }).Result).ToList();
 
             Assert.IsTrue(complexEvents1.Count == 1);
@@ -124,7 +122,7 @@ namespace Cerpent.UnitTest.ComplexEvent
 
             var complexEvents2 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
             {
-                Name = atomic2EventName,
+                Name = pressureEvent,
                 DateTime = DateTime.Now,
                 Data = JToken.FromObject(new { PersonId = johnId, Value = 150 })
             }).Result).ToList();
@@ -147,7 +145,7 @@ namespace Cerpent.UnitTest.ComplexEvent
             });
 
             eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
-            var complexEventsSecondLevel = (eventAggregator.Aggregate<AutoIncIdMockEvent>(complexEvents2[0]).Result).ToList();
+            var complexEventsSecondLevel = (eventAggregator.Aggregate(complexEvents2[0]).Result).ToList();
 
             Assert.IsTrue(complexEventsSecondLevel.Count == 1);
 
@@ -159,27 +157,35 @@ namespace Cerpent.UnitTest.ComplexEvent
             const string stereotypeName = "Hypertonia";
             var stereotypeSource = new MockStereotypeDescriptionsSource(new[]
             {
-            new StereotypeDescription(stereotypeName, complexEventSecondLevelName,
-                new Dictionary<string, string>
-                {
-                    { atomic1EventName, "Value" }, { atomic2EventName, "Value" }
-                },
-                new Dictionary<string, string>
-                {
-                    { atomic1EventName, "Value - 1" }, { atomic2EventName, "Value - 2 - listValue[2]" }
-                },
-                new Dictionary<string, string>
-                {
-                    { atomic1EventName, "Value * 2" }, { atomic2EventName, "Value * 3" }
-                },
-                "1")
-        });
+                new StereotypeDescription(stereotypeName, complexEventSecondLevelName,
+                    new Dictionary<string, string>
+                    {
+                        {pulseEvent, "Value"}, {pressureEvent, "Value + Mood"}
+                    },
+                    new Dictionary<string, string>
+                    {
+                        {pulseEvent, "Value + 1"}, {pressureEvent, "2 * Value"}
+                    },
+                    new Dictionary<string, string>
+                    {
+                        {pulseEvent, "Value - 1"}, {pressureEvent, "-2 * Value"}
+                    },
+                    new Dictionary<string, string>
+                    {
+                        {pulseEvent, "100%"}, {pressureEvent, "1"}
+                    })
+            });
 
             var stereotypeRecognizer = new StereotypeRecognizer(stereotypeSource);
             var stereotypeRecognitionResult =
-                stereotypeRecognizer.FuzzySearch(complexEventsSecondLevel[0]).Result;
+                stereotypeRecognizer.FuzzySearch(complexEventsSecondLevel[0]).Result.ToList();
 
+            Assert.IsTrue(stereotypeRecognitionResult.Count == 1);
 
+            var stereotypeCheckResult = stereotypeRecognitionResult?.FirstOrDefault();
+            Assert.IsTrue(stereotypeCheckResult?.IsConfirmed);
+
+            Assert.IsTrue(stereotypeCheckResult?.ChartResults?.Count() == 2);
         }
     }
 }

@@ -36,6 +36,9 @@ public class StereotypeRecognizer
                     var upperBoundFunc = description.UpperBounds?.ContainsKey(chartData.Key) == true
                         ? description.UpperBounds[chartData.Key] : null;
                     
+                    var accuracy = description.Accuracy?.ContainsKey(chartData.Key) == true
+                        ? description.Accuracy[chartData.Key] : null;
+                    
                     var chartProps = chartData.Value.ToObject<Dictionary<string, JToken[]>>();
                 
                     var ids = chartProps["Id"];
@@ -74,15 +77,16 @@ public class StereotypeRecognizer
                     
                     return new StereotypeChartResult()
                     {
-                        Accuracy = description.Accuracy,
+                        Accuracy = accuracy,
                         MetricName = description.Name,
                         Ids = ids.Select(d => d.ToObject<int>()).ToArray(),
                         Dates = dates.Select(d => d.ToObject<DateTime>()).ToArray(),
                         Metrics = metricResult.ToArray(),
                         UpperBounds = upperResult.ToArray(),
-                        LowerBounds = lowerResult.ToArray(),
+                        LowerBounds = lowerResult.ToArray()
                     };
-                }).ToList()
+                }).ToList(),
+                DateTime = DateTime.UtcNow
             };
         }).ToList();
 

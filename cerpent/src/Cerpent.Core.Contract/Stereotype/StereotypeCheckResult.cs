@@ -4,23 +4,25 @@ namespace Cerpent.Core.Contract.Stereotype
 {
     public class StereotypeCheckResult
     {
-        public string StereotypeName { get; set; }
-        public IEnumerable<StereotypeChartResult> ChartResults { get; set; }
+        public string? StereotypeName { get; set; }
+        public IEnumerable<StereotypeChartResult>? ChartResults { get; set; }
         public int TriggerEventId { get; set; }
-        public Dictionary<string, JToken> Context { get; set; }
-
+        public JToken? Context { get; set; }
+        public DateTime DateTime { get; set; }
+        
         public bool IsConfirmed => ChartResults?.All(chart => chart.IsConfirmed) == true;
     }
 
     public class StereotypeChartResult
     {
-        public string MetricName { get; set; }
-        public int[] Ids { get; set; }
-        public DateTime[] Dates { get; set; }
-        public double?[] Metrics { get; set; }
-        public double?[] UpperBounds { get; set; }
-        public double?[] LowerBounds { get; set; }
-        public string Accuracy { get; set; }
+        public string? MetricName { get; set; }
+        public int[] Ids { get; set; } = Array.Empty<int>();
+        public DateTime[] Dates { get; set; } = Array.Empty<DateTime>();
+        public double?[] Metrics { get; set; } = Array.Empty<double?>();
+        public double?[] UpperBounds { get; set; } = Array.Empty<double?>();
+        public double?[] LowerBounds { get; set; } = Array.Empty<double?>();
+        public string? Accuracy { get; set; }
+
         private int GetMatchesCount()
         {
             var result = 0;
@@ -46,7 +48,13 @@ namespace Cerpent.Core.Contract.Stereotype
         {
             get
             {
+                if (Accuracy is null)
+                    return true;
+                
                 var matchesCount = GetMatchesCount();
+                if (matchesCount == 0)
+                    return false;
+
                 if (Accuracy.EndsWith('%'))
                 {
                     var percentRequired = Convert.ToDouble(Accuracy.Replace("%", ""));

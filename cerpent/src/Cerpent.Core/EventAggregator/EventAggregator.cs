@@ -1,6 +1,7 @@
 ﻿using Cerpent.Core.Contract;
 using Cerpent.Core.Contract.AggregationRules;
 using Cerpent.Core.Contract.Event;
+using Cerpent.Core.Expression;
 using Newtonsoft.Json.Linq;
 
 namespace Cerpent.Core;
@@ -64,6 +65,9 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
         var newEvents = new List<TEvent>();
         foreach (var rule in rules)
         {
+            if (rule?.Atomics?.Any() != true)
+                continue;
+            
             var ruleEvents = eventList
                 .Where(e => rule.Atomics?.ContainsKey(e.Name) == true)
                 .ToArray();
@@ -71,12 +75,6 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
             if (rule.Atomics.Any(atomic =>
                     ruleEvents.Count(ruleEvent => ruleEvent.Name == atomic.Key) < atomic.Value))
                 continue;
-
-                       /*var newEventData = rule.Atomics.ToDictionary(atomic => atomic.Key,
-                atomic => ruleEvents
-                    .Where(ruleEvent => ruleEvent.Name == atomic.Key).Take(atomic.Value)
-                    .Select(ruleEvent => ruleEvent?.Data)
-                    .ToArray());*/
 
             var newEventData = rule.Atomics.ToDictionary(atomic => atomic.Key,
                 atomic =>
@@ -97,17 +95,13 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
                             if (p == "Parents")
                             {
                                 var arr = currentAtomicEvents.Select(e => e.Data[p]).ToList();
-                                var r = JToken.FromObject(arr.FirstOrDefault());
-
-                                if (arr.Count > 1)
+                                if (arr is null || arr.Count > 1)
                                     throw new Exception("Unexpected behaviour");
                                 
-                                return r;
+                                return JToken.FromObject(arr.First());
                             }
 
                             var result = currentAtomicEvents.Select(e => e.Data[p]);
-                            //if (rule.ContextFields?.Contains(p) == true)
-                            //    return result.FirstOrDefault();
 
                             return JToken.FromObject(result);
                         });
@@ -117,6 +111,16 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
                     
                     return JToken.FromObject(obj);
                 });
+
+            if (rule.Condition is not null)
+            {
+                object obj = newEventData.Count == 1
+                    ? newEventData.ElementAt(0).Value
+                    : newEventData;
+                
+                if (!JSExpression.Condition(rule.Condition, obj))
+                    continue;
+            }
 
             var data = new Dictionary<string, object?>();
             foreach (var contextField in rule.ContextFields)
@@ -128,8 +132,6 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
 
             newEvents.Add(new TEvent()
             {
-                //Id = Guid.NewGuid(),
-                Id = eventList.Max(e => e.Id),
                 Name = rule.Name,
                 DateTime = DateTime.UtcNow,
                 Data = JToken.FromObject(data)
