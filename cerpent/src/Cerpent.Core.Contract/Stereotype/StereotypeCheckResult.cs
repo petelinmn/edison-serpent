@@ -8,7 +8,8 @@ namespace Cerpent.Core.Contract.Stereotype
         public IEnumerable<StereotypeChartResult>? ChartResults { get; set; }
         public int TriggerEventId { get; set; }
         public JToken? Context { get; set; }
-
+        public DateTime DateTime { get; set; }
+        
         public bool IsConfirmed => ChartResults?.All(chart => chart.IsConfirmed) == true;
     }
 

@@ -65,6 +65,9 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
         var newEvents = new List<TEvent>();
         foreach (var rule in rules)
         {
+            if (rule?.Atomics?.Any() != true)
+                continue;
+            
             var ruleEvents = eventList
                 .Where(e => rule.Atomics?.ContainsKey(e.Name) == true)
                 .ToArray();
@@ -92,12 +95,10 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
                             if (p == "Parents")
                             {
                                 var arr = currentAtomicEvents.Select(e => e.Data[p]).ToList();
-                                var r = JToken.FromObject(arr.FirstOrDefault());
-
-                                if (arr.Count > 1)
+                                if (arr is null || arr.Count > 1)
                                     throw new Exception("Unexpected behaviour");
                                 
-                                return r;
+                                return JToken.FromObject(arr.First());
                             }
 
                             var result = currentAtomicEvents.Select(e => e.Data[p]);

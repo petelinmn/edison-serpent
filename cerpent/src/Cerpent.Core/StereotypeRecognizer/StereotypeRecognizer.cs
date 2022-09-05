@@ -83,9 +83,10 @@ public class StereotypeRecognizer
                         Dates = dates.Select(d => d.ToObject<DateTime>()).ToArray(),
                         Metrics = metricResult.ToArray(),
                         UpperBounds = upperResult.ToArray(),
-                        LowerBounds = lowerResult.ToArray(),
+                        LowerBounds = lowerResult.ToArray()
                     };
-                }).ToList()
+                }).ToList(),
+                DateTime = DateTime.UtcNow
             };
         }).ToList();
 
