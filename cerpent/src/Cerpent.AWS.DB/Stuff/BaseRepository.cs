@@ -34,7 +34,7 @@ public abstract class BaseRepository
         uow.Commit();
     }
 
-    protected JsonParameter GetJsonParameter<TKey, TValue>(IDictionary<TKey, TValue> param)
+    protected JsonParameter GetJsonParameter(object param)
     {
         var jsonText = JsonConvert.SerializeObject(param);
         return new JsonParameter(jsonText);

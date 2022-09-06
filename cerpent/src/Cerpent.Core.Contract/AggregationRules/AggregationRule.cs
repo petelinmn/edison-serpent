@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 namespace Cerpent.Core.Contract.AggregationRules
 {
-    public class AggregationRule
+    public class AggregationRule : BaseEntity
     {
         public AggregationRule()
         {
@@ -17,9 +17,6 @@ namespace Cerpent.Core.Contract.AggregationRules
             Condition = condition;
             TimeSpan = timeSpan;
         }
-
-        [JsonProperty("id")]
-        public int Id { get; set; }
         [JsonProperty("name")]
         public string? Name { get; set; }
         /// <summary>

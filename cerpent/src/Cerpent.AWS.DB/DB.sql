@@ -30,3 +30,19 @@ create table events
     datetime      timestamp                                                   not null,
     data          jsonb                                                       not null
 );
+
+create sequence stereotypecheckresults_id_seq as integer;
+create table stereotypecheckresults
+(
+    id                       integer   default nextval('stereotypecheckresults_id_seq'::regclass)   not null primary key,
+    stereotypedescriptionid  integer                                                        		not null,
+    triggereventid           integer                                                                not null,
+    chartresults             jsonb                                                                  not null,
+    datetime                 timestamp                                                              not null
+);	
+
+ALTER TABLE stereotypecheckresults
+ADD CONSTRAINT FK_stereotypecheckresults_stereotypedescriptionid_stereotype_id FOREIGN KEY (stereotypedescriptionid) REFERENCES stereotypedescriptions (id);
+
+ALTER TABLE stereotypecheckresults
+ADD CONSTRAINT FK_stereotypecheckresults_triggereventid_event_id FOREIGN KEY (triggereventid) REFERENCES events (id);

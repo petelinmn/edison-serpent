@@ -1,13 +1,22 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 
 namespace Cerpent.Core.Contract.Stereotype
 {
-    public class StereotypeCheckResult
+    public class StereotypeCheckResult : BaseEntity
     {
-        public string? StereotypeName { get; set; }
-        public IEnumerable<StereotypeChartResult>? ChartResults { get; set; }
+        [JsonProperty("stereotypedescriptionid")]
+        public int StereotypeDescriptionId { get; set; }
+        public StereotypeDescription? StereotypeDescription { get; set; }
+
+
+        [JsonProperty("triggereventid")]
         public int TriggerEventId { get; set; }
-        public JToken? Context { get; set; }
+        public Event.Event? TriggerEvent { get; set; }
+
+        [JsonProperty("chartresults")]
+        public IEnumerable<StereotypeChartResult>? ChartResults { get; set; }
+
+        [JsonProperty("datetime")]
         public DateTime DateTime { get; set; }
         
         public bool IsConfirmed => ChartResults?.All(chart => chart.IsConfirmed) == true;
