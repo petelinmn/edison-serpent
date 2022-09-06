@@ -14,13 +14,12 @@ namespace Cerpent.AWS.DB.Repositories
 
         public async Task<IEnumerable<StereotypeCheckResult>> GetByStereotypeDescriptionId(int stereotypeDescriptionId)
         {
-            var whereClause = $" where stereotypedescriptionid ='{stereotypeDescriptionId}'";
+            var whereClause = $" WHERE StereotypeDescriptionId ='{stereotypeDescriptionId}'";
 
             var sql = $@"
-            select scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id, ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
-            from stereotypecheckresults scr
-            join stereotypedescriptions sd ON sd.id = scr.stereotypedescriptionid
-            join events e ON e.id = scr.triggereventid
+            SELECT scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id, ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
+            FROM StereotypeCheckResults scr
+            JOIN StereotypeDescriptions sd ON sd.id = scr.StereotypeDescriptionId
             {whereClause};";
 
             var result = await Connection.QueryAsync<StereotypeCheckResult, StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
@@ -34,6 +33,35 @@ namespace Cerpent.AWS.DB.Repositories
 
                     stereotypeCheckResult.StereotypeDescription = stereotypeAdditionalInfo.StereotypeDescriptionName is null ? null
                         : new StereotypeDescription() { Id = stereotypeCheckResult.StereotypeDescriptionId, Name = stereotypeAdditionalInfo.StereotypeDescriptionName};
+
+                    return stereotypeCheckResult;
+                }),
+                splitOn: "Id");
+
+            return result;
+        }
+
+        public async Task<IEnumerable<StereotypeCheckResult>> GetByTriggerEventId(int triggerEventId)
+        {
+            var whereClause = $" WHERE TriggerEventId ='{triggerEventId}'";
+
+            var sql = $@"
+            SELECT scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id, ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
+            FROM stereotypecheckresults scr
+            JOIN stereotypedescriptions sd ON sd.id = scr.stereotypedescriptionid
+            {whereClause};";
+
+            var result = await Connection.QueryAsync<StereotypeCheckResult, StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
+                ((stereotypeCheckResult, stereotypeAdditionalInfo) =>
+                {
+                    if (stereotypeAdditionalInfo is null)
+                        return stereotypeCheckResult;
+
+                    stereotypeCheckResult.ChartResults = stereotypeAdditionalInfo.ChartResultsJson is null ? null
+                        : JsonConvert.DeserializeObject<IEnumerable<StereotypeChartResult>>(stereotypeAdditionalInfo.ChartResultsJson);
+
+                    stereotypeCheckResult.StereotypeDescription = stereotypeAdditionalInfo.StereotypeDescriptionName is null ? null
+                        : new StereotypeDescription() { Id = stereotypeCheckResult.StereotypeDescriptionId, Name = stereotypeAdditionalInfo.StereotypeDescriptionName };
 
                     return stereotypeCheckResult;
                 }),
@@ -89,7 +117,7 @@ namespace Cerpent.AWS.DB.Repositories
         {
             try
             {
-                await Connection.ExecuteAsync($@"DELETE FROM StereotypeCheckResults where id = {id}");
+                await Connection.ExecuteAsync($@"DELETE FROM StereotypeCheckResults WHERE id = {id}");
             }
             catch (Exception ex)
             {

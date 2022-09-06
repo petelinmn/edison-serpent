@@ -10,10 +10,13 @@ namespace Cerpent.AWS.DB.Sources
 
         private StereotypeCheckResultRepository Repository { get; set; }
 
-        public async Task<IEnumerable<StereotypeCheckResult>> Get(int stereotypeDescriptionId) =>
+        public async Task<IEnumerable<StereotypeCheckResult>> GetByStereotypeDescriptionId(int stereotypeDescriptionId) =>
             await Repository.UsingUow(async () =>
                 await Repository.GetByStereotypeDescriptionId(stereotypeDescriptionId));
 
+        public async Task<IEnumerable<StereotypeCheckResult>> GetByTriggerEventId(int triggerEventId) =>
+            await Repository.UsingUow(async () =>
+                await Repository.GetByTriggerEventId(triggerEventId));
 
         public async Task<int> Put(StereotypeCheckResult stereotypeCheckResult) =>
             await Repository.UsingUow(async () =>

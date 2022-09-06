@@ -97,8 +97,12 @@ namespace Cerpent.IntegrationTest.DBTests
             var newStereotypeCheckResultId = _dbStereotypeCheckResultSource.Put(stereotypeCheckResult).Result;
             _testStereotypeCheckResultId = newStereotypeCheckResultId;
 
-            var stereotypeCheckResultInserted = _dbStereotypeCheckResultSource.Get(newStereotypeId).Result;
-            Assert.IsNotNull(stereotypeCheckResultInserted);
+            var stereotypeCheckResultByStereotypeDescriptionId = _dbStereotypeCheckResultSource.GetByStereotypeDescriptionId(newStereotypeId).Result;
+            var stereotypeCheckResultInsertedByTriggerEventId = _dbStereotypeCheckResultSource.GetByTriggerEventId(newEventId.Value).Result;
+            Assert.IsNotNull(stereotypeCheckResultByStereotypeDescriptionId);
+            Assert.IsNotNull(stereotypeCheckResultInsertedByTriggerEventId);
+            Assert.AreEqual(stereotypeCheckResultByStereotypeDescriptionId.First().Id, stereotypeCheckResultInsertedByTriggerEventId.First().Id);
+
         }
 
         [TestCleanup]
