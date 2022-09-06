@@ -36,9 +36,9 @@ create table stereotypecheckresults
 (
     id                       integer   default nextval('stereotypecheckresults_id_seq'::regclass)   not null primary key,
     stereotypedescriptionid  integer                                                        		not null,
-	triggereventid           integer                                                                not null,
+    triggereventid           integer                                                                not null,
     chartresults             jsonb                                                                  not null,
-	datetime                 timestamp                                                              not null
+    datetime                 timestamp                                                              not null
 );	
 
 ALTER TABLE stereotypecheckresults
