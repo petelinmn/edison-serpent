@@ -10,19 +10,15 @@ namespace Cerpent.AWS.DB.Repositories;
 
 public class AggregationRulesRepository : BaseRepository
 {
-    public AggregationRulesRepository(string connectionString) : base(connectionString)
-    {
-        
-    }
-    public async Task<IEnumerable<AggregationRule>> GetByAtomic(string? atomicEventName = null)
-    {
-        var whereClause = atomicEventName is null ? "" : $"where (atomics->>'{atomicEventName}') is not null";
+    public AggregationRulesRepository(string connectionString) : base(connectionString) { }
 
+    public async Task<IEnumerable<AggregationRule>> GetByAtomic(string atomicEventName)
+    {
         var sql = $@"
             select Id, Name, Condition, Timespan, ContextFields, Id, Atomics as atomicsJson
             from AggregationRules
-            {whereClause};";
-        //            --where 'lunch' = ANY(ContextFields) --bar = any (array[1, 2, 3]);
+            WHERE (atomics->>'{atomicEventName}') is not null;";
+
         var result = await Connection.QueryAsync<AggregationRule, AggregationRuleAtomics, AggregationRule>(sql,
             ((rule, ruleAtomics) =>
             {
@@ -31,8 +27,6 @@ public class AggregationRulesRepository : BaseRepository
 
                 return rule;
             }),
-            //new {}, 
-            //Transaction, 
             splitOn: "Id");
 
         return result;
@@ -41,7 +35,7 @@ public class AggregationRulesRepository : BaseRepository
     private async Task<int?> GetId(string ruleName)
     {
         var result = await Connection.ExecuteScalarAsync<int?>($@"
-            select Id from AggregationRules where Name = @{nameof(ruleName)}",
+            SELECT Id FROM AggregationRules WHERE Name = @{nameof(ruleName)}",
             new { ruleName });
 
         return result;
@@ -74,35 +68,16 @@ public class AggregationRulesRepository : BaseRepository
         var jsonText = JsonConvert.SerializeObject(rule.Atomics);
         var atomicsJson = new JsonParameter(jsonText);
 
-        var contextFields = (IEnumerable) rule.ContextFields! ?? new[] {"personId"};
-
-        try
-        {
-            var result = await Connection.ExecuteAsync($@"
-               INSERT INTO AggregationRules (Name, Atomics, ContextFields, Condition, Timespan)
+        var result = await Connection.ExecuteAsync($@"
+            INSERT INTO AggregationRules (Name, Atomics, ContextFields, Condition, Timespan)
                 VALUES (@{nameof(rule.Name)},@{nameof(atomicsJson)},@{nameof(rule.ContextFields)},
                     @{nameof(rule.Condition)},@{nameof(rule.TimeSpan)});
             SELECT currval('aggregationrules_id_seq');
-            ", new
-            {
-                rule.Name, atomicsJson, rule.ContextFields,
-                rule.Condition, rule.TimeSpan
-            });
+        ", new { rule.Name, atomicsJson, rule.ContextFields, rule.Condition, rule.TimeSpan });
 
-            return result;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-
-        return -1;
+        return result;
     }
-    
-    //public object ToAnonymousObject(Dictionary<string, object> dict) =>
-    //    dict.Aggregate(new ExpandoObject() as IDictionary<string, object>,
-    //        (a, p) => { a.Add(p.Key, p.Value); return a; });
-    
+
     private async Task<int> Update(AggregationRule rule)
     {
         if (rule.Id == 0)
@@ -124,8 +99,8 @@ public class AggregationRulesRepository : BaseRepository
 
         return rule.Id;
     }
-    
-    class AggregationRuleAtomics
+
+    private class AggregationRuleAtomics
     {
         public int Id { get; set; }
         public string? AtomicsJson { get; set; }

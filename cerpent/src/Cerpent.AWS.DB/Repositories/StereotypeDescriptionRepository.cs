@@ -12,17 +12,16 @@ namespace Cerpent.AWS.DB.Repositories
 
         }
 
-        public async Task<IEnumerable<StereotypeDescription>> GetByTriggerEvent(string? triggerEvent = null)
+        public async Task<IEnumerable<StereotypeDescription>> GetByTriggerEvent(string triggerEvent)
         {
-            var whereClause = triggerEvent is null ? "" : $"where triggerevent ='{triggerEvent}'";
-
             var sql = $@"
-            select Id, Name, TriggerEvent, Id, Metrics as metricsJson,
-                UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson, Accuracy as accuracyJson
-            from stereotypedescriptions
-            {whereClause};";
+                select Id, Name, TriggerEvent, Id, Metrics as metricsJson,
+                    UpperBounds as upperBoundsJson, LowerBounds as lowerBoundsJson, Accuracy as accuracyJson
+                from StereotypeDescriptions
+                where TriggerEvent = '{triggerEvent}';";
 
-            var result = await Connection.QueryAsync<StereotypeDescription, StereotypeDescriptionBounds, StereotypeDescription>(sql,
+            var result = await Connection.QueryAsync<StereotypeDescription, 
+                    StereotypeDescriptionBounds, StereotypeDescription>(sql,
                 ((stereotype, stereotypeBounds) =>
                 {
                     if (stereotypeBounds is null)
@@ -49,12 +48,12 @@ namespace Cerpent.AWS.DB.Repositories
 
         public async Task<int> Put(StereotypeDescription stereotype)
         {
-            if (stereotype is null)
+            if (stereotype?.Name is null)
             {
-                throw new Exception("StereotypeDescription can't be null");
+                throw new Exception("StereotypeDescription can't be null and should have Name");
             }
 
-            var currentId = await GetId(stereotype.TriggerEvent);
+            var currentId = await GetId(stereotype.Name);
             if (!currentId.HasValue)
             {
                 currentId = await Insert(stereotype);
@@ -68,17 +67,8 @@ namespace Cerpent.AWS.DB.Repositories
             return currentId.Value;
         }
 
-        public async Task Delete(int id)
-        {
-            try
-            {
-                await Connection.ExecuteAsync($@"DELETE FROM stereotypedescriptions where id = {id}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+        public async Task Delete(int id) =>
+            await Connection.ExecuteAsync($@"DELETE FROM StereotypeDescriptions where id = {id}");
 
         private async Task<int> Insert(StereotypeDescription stereotype)
         {
@@ -87,30 +77,21 @@ namespace Cerpent.AWS.DB.Repositories
             var lowerBoundsJson = stereotype?.LowerBounds is null ? null : GetJsonParameter(stereotype.LowerBounds);
             var accuracyJson = stereotype?.Accuracy is null ? null : GetJsonParameter(stereotype.Accuracy);
 
-            try
-            {
-                var result = await Connection.ExecuteScalarAsync($@"
-               INSERT INTO stereotypedescriptions (name, triggerevent, metrics, upperbounds, lowerbounds, accuracy)
+             var result = await Connection.ExecuteScalarAsync<int>($@"
+               INSERT INTO StereotypeDescriptions (Name, TriggerEvent, Metrics, UpperBounds, LowerBounds, Accuracy)
                 VALUES (@{nameof(stereotype.Name)},@{nameof(stereotype.TriggerEvent)},@{nameof(metricsJson)},
                         @{nameof(upperBoundsJson)},@{nameof(lowerBoundsJson)},@{nameof(accuracyJson)}) returning id;",
-                    new
-                    {
-                        stereotype?.Name,
-                        stereotype?.TriggerEvent,
-                        metricsJson,
-                        upperBoundsJson,
-                        lowerBoundsJson,
-                        accuracyJson
-                    });
+                new
+                {
+                    stereotype?.Name,
+                    stereotype?.TriggerEvent,
+                    metricsJson,
+                    upperBoundsJson,
+                    lowerBoundsJson,
+                    accuracyJson
+                });
 
-                return (int)result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return -1;
+            return result;
         }
 
         private async Task<int> Update(StereotypeDescription stereotype)
@@ -124,15 +105,15 @@ namespace Cerpent.AWS.DB.Repositories
             var accuracyJson = stereotype?.Accuracy is null ? null : GetJsonParameter(stereotype.Accuracy);
 
             await Connection.ExecuteAsync($@"
-           UPDATE stereotypedescriptions
-           SET name=@{nameof(stereotype.Name)},
-               triggerevent=@{nameof(stereotype.TriggerEvent)},
-               metrics=@{nameof(metricsJson)},
-               upperbounds=@{nameof(upperBoundsJson)},
-               lowerbounds=@{nameof(lowerBoundsJson)},
-               accuracy=@{nameof(accuracyJson)}
-           WHERE Id = @{stereotype.Id} 
-        ", new
+               UPDATE StereotypeDescriptions
+               SET name=@{nameof(stereotype.Name)},
+                   TriggerEvent=@{nameof(stereotype.TriggerEvent)},
+                   Metrics=@{nameof(metricsJson)},
+                   UpperBounds=@{nameof(upperBoundsJson)},
+                   LowerBounds=@{nameof(lowerBoundsJson)},
+                   Accuracy=@{nameof(accuracyJson)}
+               WHERE Id = @{stereotype.Id}", 
+        new
             {
                 stereotype.Name,
                 stereotype.TriggerEvent,
@@ -145,16 +126,10 @@ namespace Cerpent.AWS.DB.Repositories
             return stereotype.Id;
         }
 
-        private async Task<int?> GetId(string triggerEvent)
-        {
-            var result = await Connection.ExecuteScalarAsync<int?>($@"
-            select Id from stereotypedescriptions where triggerevent = @{nameof(triggerEvent)}",
-                new { triggerEvent });
+        private async Task<int?> GetId(string name) => await Connection.ExecuteScalarAsync<int?>($@"
+            select Id from StereotypeDescriptions where Name = @{nameof(name)}", new { name });
 
-            return result;
-        }
-
-        class StereotypeDescriptionBounds
+        private class StereotypeDescriptionBounds
         {
             public int Id { get; set; }
             public string? MetricsJson { get; set; }

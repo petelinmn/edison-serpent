@@ -8,6 +8,7 @@ namespace Cerpent.IntegrationTest.DBTests
     public class StereotypeDescriptionDbOperationTest : BaseDbOpeartionTest
     {
         private DbStereotypeDescriptionSource? _stereotypeDescriptionSource;
+        private int _testStereotypeId;
 
         [TestInitialize]
         public void TestInitialize()
@@ -53,13 +54,13 @@ namespace Cerpent.IntegrationTest.DBTests
             if (_stereotypeDescriptionSource == null)
                 throw new ArgumentNullException(nameof(_stereotypeDescriptionSource));
             
-            var newId = _stereotypeDescriptionSource.Put(newStereotype).Result;            
+            _testStereotypeId = _stereotypeDescriptionSource.Put(newStereotype).Result;            
 
             var ruleFromDb = _stereotypeDescriptionSource.Get(stereotypeTriggerEvent)
                 .Result.FirstOrDefault();
 
             Assert.IsTrue(ruleFromDb != null);
-            Assert.IsTrue(ruleFromDb.Id == newId);
+            Assert.IsTrue(ruleFromDb.Id == _testStereotypeId);
             Assert.IsTrue(ruleFromDb.TriggerEvent == newStereotype.TriggerEvent);
             Assert.IsTrue(ruleFromDb.Metrics?.Count == newStereotype.Metrics?.Count);
             Assert.IsTrue(ruleFromDb.Metrics?.First().Key == newStereotype.Metrics?.First().Key);
@@ -73,14 +74,10 @@ namespace Cerpent.IntegrationTest.DBTests
             Assert.IsTrue(ruleFromDb.Accuracy?.Count == newStereotype.Accuracy?.Count);
             Assert.IsTrue(ruleFromDb.Accuracy?.First().Key == newStereotype.Accuracy?.First().Key);
             Assert.IsTrue(ruleFromDb.Accuracy?.First().Value == newStereotype.Accuracy?.First().Value);
-
-            //TODO: Test cleanup
-            //if (_lastIdInserted != 0)
-            //{
-            //    _stereotypeDescriptionSource.Delete(_lastIdInserted);
-            //}
-
-            //_lastIdInserted = ruleFromDb.Id;
         }
+        
+        [TestCleanup]
+        public void TestCleanup() =>
+            _stereotypeDescriptionSource?.Delete(_testStereotypeId).GetAwaiter().GetResult();
     }
 }

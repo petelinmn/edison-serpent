@@ -7,22 +7,19 @@ namespace Cerpent.AWS.DB.Repositories
 {
     public class StereotypeCheckResultRepository : BaseRepository
     {
-        public StereotypeCheckResultRepository(string connectionString) : base(connectionString)
-        {
-
-        }
+        public StereotypeCheckResultRepository(string connectionString) : base(connectionString) { }
 
         public async Task<IEnumerable<StereotypeCheckResult>> GetByStereotypeDescriptionId(int stereotypeDescriptionId)
         {
-            var whereClause = $" WHERE StereotypeDescriptionId ='{stereotypeDescriptionId}'";
-
             var sql = $@"
-            SELECT scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id, ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
-            FROM StereotypeCheckResults scr
-            JOIN StereotypeDescriptions sd ON sd.id = scr.StereotypeDescriptionId
-            {whereClause};";
+                SELECT scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id,
+                       ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
+                    FROM StereotypeCheckResults scr
+                    JOIN StereotypeDescriptions sd ON sd.id = scr.StereotypeDescriptionId
+                    WHERE StereotypeDescriptionId = {stereotypeDescriptionId};";
 
-            var result = await Connection.QueryAsync<StereotypeCheckResult, StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
+            var result = await Connection.QueryAsync<StereotypeCheckResult,
+                    StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
                 ((stereotypeCheckResult, stereotypeAdditionalInfo) =>
                 {
                     if (stereotypeAdditionalInfo is null)
@@ -43,15 +40,15 @@ namespace Cerpent.AWS.DB.Repositories
 
         public async Task<IEnumerable<StereotypeCheckResult>> GetByTriggerEventId(int triggerEventId)
         {
-            var whereClause = $" WHERE TriggerEventId ='{triggerEventId}'";
-
             var sql = $@"
-            SELECT scr.Id, StereotypeDescriptionid, TriggerEventId, scr.DateTime, scr.Id, ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
-            FROM stereotypecheckresults scr
-            JOIN stereotypedescriptions sd ON sd.id = scr.stereotypedescriptionid
-            {whereClause};";
+                SELECT scr.Id, StereotypeDescriptionId, TriggerEventId, scr.DateTime, scr.Id,
+                       ChartResults as ChartResultsJson, sd.Name as StereotypeDescriptionName
+                FROM StereotypeCheckResults scr
+                JOIN StereotypeDescriptions sd ON sd.id = scr.stereotypeDescriptionId
+                WHERE TriggerEventId = {triggerEventId};";
 
-            var result = await Connection.QueryAsync<StereotypeCheckResult, StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
+            var result = await Connection.QueryAsync<StereotypeCheckResult,
+                    StereotypeAdditionalInfo, StereotypeCheckResult>(sql,
                 ((stereotypeCheckResult, stereotypeAdditionalInfo) =>
                 {
                     if (stereotypeAdditionalInfo is null)
@@ -61,7 +58,11 @@ namespace Cerpent.AWS.DB.Repositories
                         : JsonConvert.DeserializeObject<IEnumerable<StereotypeChartResult>>(stereotypeAdditionalInfo.ChartResultsJson);
 
                     stereotypeCheckResult.StereotypeDescription = stereotypeAdditionalInfo.StereotypeDescriptionName is null ? null
-                        : new StereotypeDescription() { Id = stereotypeCheckResult.StereotypeDescriptionId, Name = stereotypeAdditionalInfo.StereotypeDescriptionName };
+                        : new StereotypeDescription
+                        {
+                            Id = stereotypeCheckResult.StereotypeDescriptionId, 
+                            Name = stereotypeAdditionalInfo.StereotypeDescriptionName
+                        };
 
                     return stereotypeCheckResult;
                 }),
@@ -90,40 +91,24 @@ namespace Cerpent.AWS.DB.Repositories
             var chartResultsJson = GetJsonParameter(stereotypeCheckResult.ChartResults);
             var utcNow = GetDateTimeParameter(DateTime.UtcNow);
 
-            try
+            var result = await Connection.ExecuteScalarAsync<int>($@"
+                INSERT INTO StereotypeCheckResults (StereotypeDescriptionId, TriggerEventId, ChartResults, Datetime)
+                VALUES (@{nameof(stereotypeCheckResult.StereotypeDescriptionId)},
+                        @{nameof(stereotypeCheckResult.TriggerEventId)},@{nameof(chartResultsJson)},@{nameof(utcNow)})
+                returning id;",
+            new
             {
-                var result = await Connection.ExecuteScalarAsync($@"
-               INSERT INTO StereotypeCheckResults (StereotypeDescriptionId, TriggerEventId, ChartResults, Datetime)
-                VALUES (@{nameof(stereotypeCheckResult.StereotypeDescriptionId)},@{nameof(stereotypeCheckResult.TriggerEventId)},@{nameof(chartResultsJson)},@{nameof(utcNow)}) returning id;",
-                new
-                {
-                    stereotypeCheckResult.StereotypeDescriptionId,
-                    stereotypeCheckResult.TriggerEventId,
-                    chartResultsJson,
-                    utcNow
-                });
+                stereotypeCheckResult.StereotypeDescriptionId,
+                stereotypeCheckResult.TriggerEventId,
+                chartResultsJson,
+                utcNow
+            });
 
-                return (int)result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return -1;
+            return result;
         }
 
-        public async Task Delete(int id)
-        {
-            try
-            {
-                await Connection.ExecuteAsync($@"DELETE FROM StereotypeCheckResults WHERE id = {id}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+        public async Task Delete(int id) =>
+            await Connection.ExecuteAsync($@"DELETE FROM StereotypeCheckResults WHERE id = {id}");
 
         class StereotypeAdditionalInfo
         {
