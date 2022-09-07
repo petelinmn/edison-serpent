@@ -13,7 +13,7 @@ namespace Cerpent.Core.Contract.AggregationRules
         {
             Name = name;
             Atomics = atomics;
-            ContextFields = contextFields.ToList();
+            ContextFields = contextFields;
             Condition = condition;
             TimeSpan = timeSpan;
         }

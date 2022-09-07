@@ -16,36 +16,24 @@ public class AggregationRulesController : ControllerBase
     }
     
     // GET api/aggregationRules
-    //[HttpGet]
-    //public IEnumerable<string> Get()
-    //{
-    //    return new string[] {"value1", "value2"};
-    //}
+    [HttpGet]
+    public async Task<IEnumerable<AggregationRule>> Get() =>
+        await AggregationRuleSource.Get();
 
     // GET api/aggregationRules/test-rule
     [HttpGet("{ruleName}")]
-    public async Task<IEnumerable<AggregationRule>> Get(string ruleName)
-    {
-        var rules = await AggregationRuleSource.Get(ruleName);
-        return rules;
-    }
+    public async Task<IEnumerable<AggregationRule>> Get(string ruleName) =>
+        await AggregationRuleSource.Get(ruleName);
 
-    // POST api/values
-    //[HttpPost]
-    //public void Post([FromBody] string value)
-    //{
-    //}
-
-    // PUT api/values
+    // PUT api/aggregationRules
     [HttpPut]
-    public async Task<int> Put([FromBody] AggregationRule rule)
-    {
-        return await AggregationRuleSource.Put(rule);
-    }
-    
-    // DELETE api/values/5
+    public async Task Put([FromBody] AggregationRule rule) =>
+        await AggregationRuleSource.Put(rule);
+
+    //DELETE api/aggregationRules/5
     //[HttpDelete("{id}")]
-    //public void Delete(int id)
+    //public async void Delete(int id)
     //{
+    //    await AggregationRuleSource.Delete(id);
     //}
 }

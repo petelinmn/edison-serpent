@@ -110,7 +110,7 @@ namespace Cerpent.UnitTest.ComplexEvent
 
             var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
 
-            var complexEvents1 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
+            var complexEvents1 = (eventAggregator.Aggregate(new AutoIncIdMockEvent
             {
                 Name = pulseEvent,
                 DateTime = DateTime.Now,
@@ -120,7 +120,7 @@ namespace Cerpent.UnitTest.ComplexEvent
             Assert.IsTrue(complexEvents1.Count == 1);
             Assert.IsTrue(complexEvents1[0].Name == complexEvent1Name);
 
-            var complexEvents2 = (eventAggregator.Aggregate<AutoIncIdMockEvent>(new AutoIncIdMockEvent
+            var complexEvents2 = (eventAggregator.Aggregate(new AutoIncIdMockEvent
             {
                 Name = pressureEvent,
                 DateTime = DateTime.Now,

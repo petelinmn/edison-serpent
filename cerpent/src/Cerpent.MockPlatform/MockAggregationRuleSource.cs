@@ -10,6 +10,10 @@ public class MockAggregationRuleSource : IAggregationRuleSource
     {
         AggregationRules = aggregationRules;
     }
+    
+    public async Task<IEnumerable<AggregationRule>> Get() =>
+        await Task.Run(() =>
+            AggregationRules);
 
     public async Task<IEnumerable<AggregationRule>> Get(string triggerEventName) =>
         await Task.Run(() =>

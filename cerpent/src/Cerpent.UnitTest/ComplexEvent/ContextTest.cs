@@ -56,7 +56,7 @@ namespace Cerpent.UnitTest.ComplexEvent
             });
 
             var eventAggregator = new EventAggregator<AutoIncIdMockEvent>(eventSource, aggregationRuleSource);
-            var complexEvents = (eventAggregator.Aggregate(new Event
+            var complexEvents = (eventAggregator.Aggregate(new AutoIncIdMockEvent
             {
                 Name = atomicEventName,
                 DateTime = DateTime.Now,

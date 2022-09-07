@@ -11,11 +11,21 @@ public class DbAggregationRuleSource : IAggregationRuleSource
 
     private AggregationRulesRepository Repository { get; set; }
 
+    public async Task<IEnumerable<AggregationRule>> Get() =>
+        await Repository.UsingUow(async () =>
+            await Repository.Get());
+    
     public async Task<IEnumerable<AggregationRule>> Get(string ruleName) =>
         await Repository.UsingUow(async () =>
             await Repository.GetByAtomic(ruleName));
 
-    public async Task<int> Put(AggregationRule rule) =>
-        await Repository.UsingUow(async () =>
+    public async Task<int> Put(AggregationRule rule)
+    {
+        var result = await Repository.UsingUow(async () =>
             await Repository.Put(rule));
+        
+        //TODO: We need update subscription rule here for Event accounting lambda
+        
+        return result;
+    }
 }

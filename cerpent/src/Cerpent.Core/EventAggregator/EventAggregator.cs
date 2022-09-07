@@ -21,14 +21,15 @@ public class EventAggregator<TEvent> where TEvent : Event, new()
         (await AggregationRuleSource.Get(triggerEventName))
             .Where(rule => rule.Atomics?.ContainsKey(triggerEventName) == true)
             .ToArray();
-
-    public async Task<IEnumerable<TEvent>> Aggregate<TEvent>(TEvent triggerAtomicEvent) where TEvent : Event, new()
+    
+    public async Task<IEnumerable<TEvent>> Aggregate(TEvent triggerAtomicEvent)
     {
         var rules = await GetRules(triggerAtomicEvent.Name);
 
         var dataDictionary = triggerAtomicEvent.Data;
 
         var contextDictionary = rules
+            .Where(rule => rule.ContextFields is not null)
             .Select(rule => rule.ContextFields)
             .SelectMany(contextFields => contextFields)
             .Distinct()
